@@ -1,0 +1,47 @@
+Motorcycle Maintenance Basics
+
+Engine Oil Changes
+
+Engine oil is one of the most critical fluids in a motorcycle. It lubricates moving parts, reduces friction, helps cool the engine, and carries away contaminants. Over time, oil breaks down and becomes less effective, which is why regular oil changes are essential.
+
+Most motorcycles require an oil change every 3,000 to 6,000 miles, depending on the manufacturer's recommendation, riding conditions, and oil type. Bikes ridden in stop-and-go city traffic or in dusty environments may need more frequent changes. Always check your motorcycle's service manual for the specific interval recommended for your make and model.
+
+There are three main types of motorcycle engine oil: conventional (mineral), semi-synthetic, and full synthetic. Full synthetic oil generally lasts longer and performs better under high heat, but costs more. Always use the viscosity grade specified for your engine, such as 10W-40 or 20W-50.
+
+To change the oil, warm up the engine briefly to thin the oil, then drain it from the drain bolt at the bottom of the engine case. Replace the drain bolt washer each time. Remove and replace the oil filter as well — a new filter should be used with every oil change. Refill with the correct amount and grade of fresh oil, then check the level using the sight glass or dipstick.
+
+Air Filter Replacement
+
+The air filter prevents dust and debris from entering the engine. A clogged air filter restricts airflow, reduces engine performance, and can increase fuel consumption. Most motorcycles need the air filter inspected every 6,000 to 12,000 miles and replaced when dirty or damaged.
+
+Paper filters are disposable and should be replaced, not cleaned. Foam filters can often be cleaned with a dedicated cleaner, dried thoroughly, and re-oiled before reinstalling.
+
+Chain Maintenance
+
+The drive chain transfers power from the engine to the rear wheel. Proper chain care is one of the most important and most overlooked maintenance tasks on a motorcycle.
+
+Chain lubrication should be done every 300 to 600 miles, or after riding in rain. Use a dedicated motorcycle chain lubricant — not WD-40 or general-purpose oil, which fling off at speed and attract dirt. Apply the lubricant to the inner side of the chain while slowly rotating the rear wheel.
+
+Chain tension must be checked regularly. A chain that is too loose can slap the swingarm or skip teeth on the sprocket; a chain that is too tight puts excess stress on the transmission output shaft bearing. Most motorcycles specify 20 to 30 mm of slack at the midpoint of the lower chain run. Adjust tension using the rear axle adjusters and always re-torque the axle nut after adjustment.
+
+Chains also wear over time and stretch. Measure chain stretch using a ruler: a 12-link section of a new 520-pitch chain measures approximately 152.4 mm. If it measures 160 mm or more, the chain is worn and must be replaced. Always replace the chain and both sprockets together, as worn sprockets will rapidly wear a new chain.
+
+Tire Pressure
+
+Correct tire pressure is critical for handling, braking, and tire life. Under-inflated tires create excessive heat, increase fuel consumption, and can cause dangerous handling instability. Over-inflated tires reduce the contact patch and make the ride harsh.
+
+Check tire pressure when the tires are cold — before riding or after the bike has sat for at least two hours. Use a quality tire pressure gauge. Recommended pressures vary by bike and load; typical ranges are 28–36 PSI for the front and 32–42 PSI for the rear. Always refer to the sticker on your bike's swingarm or the owner's manual for the correct values.
+
+Inspect tires visually at the same time: look for cracks, bulges, embedded objects, and tread depth. Most motorcycle tires have tread wear indicators; when the tread is flush with these indicators, the tire must be replaced.
+
+Brake Fluid
+
+Brake fluid is a hydraulic fluid that transmits force from the brake lever or pedal to the brake calipers. It is hygroscopic, meaning it absorbs moisture from the air over time. As moisture content increases, the fluid's boiling point drops, which can lead to brake fade under heavy use.
+
+Brake fluid should be inspected at every service interval and replaced every one to two years regardless of mileage, or whenever it appears dark or discolored. Most motorcycles use DOT 4 fluid; check your owner's manual and never mix different DOT ratings. When topping up the reservoir, ensure the area is clean to avoid contamination. Use only fresh fluid from a sealed container.
+
+Coolant
+
+Liquid-cooled motorcycles use coolant (antifreeze mixed with distilled water) to regulate engine temperature. Coolant degrades over time — its corrosion inhibitors wear out and pH balance shifts, which can cause internal corrosion in the cooling system.
+
+Coolant should be replaced every two years or per the manufacturer's schedule. Always use the recommended coolant type for your motorcycle — some engines require specific formulations. Check the coolant level in the overflow reservoir when the engine is cold. The level should fall between the MIN and MAX marks. Never open the radiator cap on a hot engine, as the system is pressurized and scalding coolant can spray out.

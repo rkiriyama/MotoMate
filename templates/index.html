@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MotoMate</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 60px auto;
+      padding: 0 20px;
+      background: #f5f5f5;
+      color: #222;
+    }
+    h1 { font-size: 2rem; margin-bottom: 4px; }
+    p.subtitle { margin-top: 0; color: #555; }
+    label { display: block; margin-top: 12px; font-weight: bold; font-size: 0.9rem; }
+    input, textarea {
+      width: 100%; box-sizing: border-box;
+      padding: 8px; margin-top: 4px;
+      border: 1px solid #ccc; border-radius: 4px;
+      font-size: 1rem;
+    }
+    button {
+      margin-top: 16px; padding: 10px 24px;
+      background: #e05c00; color: white;
+      border: none; border-radius: 4px;
+      font-size: 1rem; cursor: pointer;
+    }
+    button:disabled { background: #aaa; cursor: not-allowed; }
+    #response-panel {
+      margin-top: 28px; background: white;
+      border: 1px solid #ddd; border-radius: 6px;
+      padding: 20px; display: none;
+    }
+    .badge {
+      display: inline-block; padding: 3px 10px;
+      border-radius: 12px; font-size: 0.8rem;
+      font-weight: bold; color: white;
+      margin-bottom: 12px;
+    }
+    .badge-maintenance   { background: #2980b9; }
+    .badge-general_info  { background: #27ae60; }
+    .badge-safety_riding { background: #8e44ad; }
+    .badge-gear          { background: #d35400; }
+    .badge-unsupported   { background: #7f8c8d; }
+    .safety-box {
+      margin-top: 16px; padding: 12px 16px;
+      background: #fff3cd; border: 1px solid #ffc107;
+      border-radius: 4px; font-size: 0.95rem;
+    }
+    .sources {
+      margin-top: 14px; font-size: 0.85rem; color: #555;
+    }
+    .error-box {
+      margin-top: 16px; padding: 12px 16px;
+      background: #fdecea; border: 1px solid #e57373;
+      border-radius: 4px; color: #b71c1c;
+    }
+    #spinner { display: none; margin-top: 12px; color: #555; }
+  </style>
+</head>
+<body>
+
+  <h1>🏍️ MotoMate</h1>
+  <p class="subtitle">Motorcycle maintenance &amp; safety assistant — answers grounded in local corpus only.</p>
+
+  <!-- Bike profile -->
+  <label for="year">Year</label>
+  <input id="year" type="text" placeholder="e.g. 2020" />
+
+  <label for="make">Make</label>
+  <input id="make" type="text" placeholder="e.g. Honda" />
+
+  <label for="model">Model</label>
+  <input id="model" type="text" placeholder="e.g. CB500F" />
+
+  <label for="mileage">Mileage</label>
+  <input id="mileage" type="text" placeholder="e.g. 5000" />
+
+  <!-- Question -->
+  <label for="question">Your Question</label>
+  <textarea id="question" rows="3" maxlength="500"
+    placeholder="e.g. How often should I change the engine oil?"></textarea>
+
+  <button id="ask-btn" disabled>Ask MotoMate</button>
+  <div id="spinner">⏳ Thinking…</div>
+
+  <!-- Response panel -->
+  <div id="response-panel">
+    <span id="category-badge" class="badge"></span>
+    <div id="answer-text"></div>
+    <div id="safety-warning" class="safety-box" style="display:none;"></div>
+    <div id="sources" class="sources"></div>
+    <div id="error-box" class="error-box" style="display:none;"></div>
+  </div>
+
+  <!-- Add-to-corpus -->
+  <details style="margin-top:32px;">
+    <summary style="cursor:pointer; font-weight:bold;">➕ Add to Corpus</summary>
+    <p style="font-size:0.9rem;color:#555;">
+      Paste motorcycle manual or guide content below to extend MotoMate's knowledge.
+    </p>
+    <textarea id="corpus-text" rows="6"
+      placeholder="Paste motorcycle content here (min 50 characters)…"></textarea>
+    <button id="corpus-btn">Submit to Corpus</button>
+    <div id="corpus-status" style="margin-top:8px; font-size:0.9rem;"></div>
+  </details>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
