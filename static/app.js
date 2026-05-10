@@ -155,14 +155,26 @@ document.addEventListener("DOMContentLoaded", function () {
     xhr.onload = function () {
       setLoading(false);
       validate();
+
+      // Always show the raw server response so we can see what came back
+      var rawDiv = document.getElementById("raw-output");
+      if (rawDiv) {
+        rawDiv.textContent = "HTTP " + xhr.status + "\n\n" + xhr.responseText;
+        rawDiv.style.display = "block";
+      }
+      console.log("MotoMate response status:", xhr.status);
+      console.log("MotoMate response body:", xhr.responseText);
+
       try {
         var data = JSON.parse(xhr.responseText);
+        console.log("MotoMate parsed data:", data);
         if (xhr.status >= 200 && xhr.status < 300) {
           renderResponse(data);
         } else {
           renderError("Server error " + xhr.status + ": " + (data.error || "unknown"));
         }
       } catch (e) {
+        console.error("MotoMate JSON parse error:", e);
         renderError("Could not parse server response. Check the terminal for Python errors.");
       }
     };
