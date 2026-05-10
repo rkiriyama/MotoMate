@@ -99,6 +99,7 @@ def answer(
             ],
             temperature=0.3,
             max_tokens=400,
+            timeout=30,
         )
         answer_text = response.choices[0].message.content.strip()
 

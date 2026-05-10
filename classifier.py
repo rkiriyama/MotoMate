@@ -64,6 +64,7 @@ def classify(question: str, bike_profile: dict) -> str:
             ],
             temperature=0.0,
             max_tokens=10,
+            timeout=30,
         )
         raw = response.choices[0].message.content.strip().lower()
         # Strip any accidental punctuation the model might add

@@ -100,25 +100,30 @@ def api_ask():
     }
     question = str(data["question"]).strip()[:500]  # enforce 500-char limit
 
-    # --- Step 1: Classify ---
-    category = classify(question, bike_profile)
+    try:
+        # --- Step 1: Classify ---
+        category = classify(question, bike_profile)
 
-    # --- Step 2: Retrieve ---
-    top_chunks, max_score = retrieve(question)
+        # --- Step 2: Retrieve ---
+        top_chunks, max_score = retrieve(question)
 
-    # --- Step 3: Answer (or refuse) ---
-    result = answer(question, bike_profile, top_chunks, max_score)
+        # --- Step 3: Answer (or refuse) ---
+        result = answer(question, bike_profile, top_chunks, max_score)
 
-    # --- Step 4: Safety warning (rule-based, no OpenAI call) ---
-    safety_warning = check_safety(question, result["answer"], category)
+        # --- Step 4: Safety warning (rule-based, no OpenAI call) ---
+        safety_warning = check_safety(question, result["answer"], category)
 
-    return jsonify({
-        "category":       category,
-        "answer":         result["answer"],
-        "sources":        result["sources"],
-        "safety_warning": safety_warning,
-        "has_answer":     result["has_answer"],
-    })
+        return jsonify({
+            "category":       category,
+            "answer":         result["answer"],
+            "sources":        result["sources"],
+            "safety_warning": safety_warning,
+            "has_answer":     result["has_answer"],
+        })
+
+    except Exception as exc:
+        app.logger.exception("Unhandled error in /api/ask")
+        return jsonify({"error": f"Server error: {str(exc)}"}), 500
 
 
 @app.route("/api/corpus", methods=["POST"])
@@ -179,4 +184,4 @@ def api_corpus():
 # Entry point
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    app.run(host="0.0.0.0", port=5000, debug=True)
