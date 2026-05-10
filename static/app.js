@@ -122,7 +122,7 @@ document.addEventListener("DOMContentLoaded", function () {
       esc(data.answer) + "</div>" +
       safetyHtml + sourcesHtml;
 
-    responsePanel.style.display = "";
+    responsePanel.style.display = "block";
   }
 
   function renderError(msg) {
@@ -130,7 +130,7 @@ document.addEventListener("DOMContentLoaded", function () {
       '<div style="padding:12px 14px;background:#fef2f2;border:1px solid #fca5a5;' +
       'border-left:4px solid #ef4444;border-radius:6px;color:#991b1b;font-size:0.92rem">' +
       esc(msg) + "</div>";
-    responsePanel.style.display = "";
+    responsePanel.style.display = "block";
   }
 
   // --- Ask ---

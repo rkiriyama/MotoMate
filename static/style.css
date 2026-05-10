@@ -178,7 +178,6 @@ textarea {
 
 /* ── Response panel ── */
 #response-panel {
-  display: none;
   animation: fadeIn 0.25s ease;
 }
 @keyframes fadeIn {
