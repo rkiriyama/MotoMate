@@ -3,108 +3,38 @@
 (function () {
   "use strict";
 
-  // ── Element references ──────────────────────────────────────────────────
-  const PROFILE_FIELDS = ["year", "make", "model", "mileage"];
-  const ALL_FIELDS     = [...PROFILE_FIELDS, "question"];
+  // ── Grab every element app.js needs. ────────────────────────────────────
+  // If any are null the page structure is wrong; log clearly and stop.
+  var ids = [
+    "year", "make", "model", "mileage", "question",
+    "char-count", "ask-btn",
+    "response-panel", "error-box", "answer-section",
+    "category-badge", "answer-text", "safety-warning",
+    "sources-section", "sources-list",
+    "corpus-text", "corpus-btn", "corpus-status"
+  ];
 
-  const askBtn        = document.getElementById("ask-btn");
-  const questionEl    = document.getElementById("question");
-  const charCountEl   = document.getElementById("char-count");
-  const responsePanel = document.getElementById("response-panel");
-
-  // Response sub-elements
-  const errorBox      = document.getElementById("error-box");
-  const answerSection = document.getElementById("answer-section");
-  const categoryBadge = document.getElementById("category-badge");
-  const answerText    = document.getElementById("answer-text");
-  const safetyBox     = document.getElementById("safety-warning");
-  const sourcesSection= document.getElementById("sources-section");
-  const sourcesList   = document.getElementById("sources-list");
-
-  // Corpus elements
-  const corpusBtn     = document.getElementById("corpus-btn");
-  const corpusTextEl  = document.getElementById("corpus-text");
-  const corpusStatus  = document.getElementById("corpus-status");
-
-  // ── Utility helpers ─────────────────────────────────────────────────────
-  function show(el) { el.style.display = ""; }
-  function hide(el) { el.style.display = "none"; }
-
-  // ── Character counter ───────────────────────────────────────────────────
-  questionEl.addEventListener("input", () => {
-    const len = questionEl.value.length;
-    charCountEl.textContent = len;
-    charCountEl.parentElement.classList.toggle("warn", len >= 450);
+  var el = {};
+  var broken = false;
+  ids.forEach(function (id) {
+    el[id] = document.getElementById(id);
+    if (!el[id]) {
+      console.error("MotoMate: missing element #" + id);
+      broken = true;
+    }
   });
-
-  // ── Form validation: enable Ask only when all fields are non-empty ──────
-  function validate() {
-    const allFilled = ALL_FIELDS.every(
-      id => document.getElementById(id).value.trim() !== ""
-    );
-    // Don't re-enable while a request is in flight
-    if (!askBtn.classList.contains("loading")) {
-      askBtn.disabled = !allFilled;
-    }
-  }
-  ALL_FIELDS.forEach(id =>
-    document.getElementById(id).addEventListener("input", validate)
-  );
-
-  // ── Loading state helpers ───────────────────────────────────────────────
-  function setLoading(active) {
-    askBtn.classList.toggle("loading", active);
-    askBtn.disabled = active;
-    askBtn.querySelector(".btn-label").textContent = active
-      ? "Thinking…"
-      : "Ask MotoMate";
+  if (broken) {
+    console.error("MotoMate: page is missing required elements. JS will not run.");
+    return;
   }
 
-  // ── Badge rendering ─────────────────────────────────────────────────────
-  const BADGE_CLASS = {
-    maintenance:   "badge-maintenance",
-    general_info:  "badge-general_info",
-    safety_riding: "badge-safety_riding",
-    gear:          "badge-gear",
-    unsupported:   "badge-unsupported",
-  };
-  const BADGE_LABEL = {
-    maintenance:   "Maintenance",
-    general_info:  "General Info",
-    safety_riding: "Safety & Riding",
-    gear:          "Gear",
-    unsupported:   "Unsupported",
-  };
+  var askBtn    = el["ask-btn"];
+  var allFields = ["year", "make", "model", "mileage", "question"];
 
-  function renderBadge(category) {
-    categoryBadge.className =
-      "badge " + (BADGE_CLASS[category] || "badge-unsupported");
-    categoryBadge.textContent =
-      BADGE_LABEL[category] || category;
-  }
+  // ── Utility ──────────────────────────────────────────────────────────────
+  function show(e) { e.style.display = ""; }
+  function hide(e) { e.style.display = "none"; }
 
-  // ── Source list rendering ───────────────────────────────────────────────
-  function renderSources(sources) {
-    sourcesList.innerHTML = "";
-    if (!sources || sources.length === 0) {
-      hide(sourcesSection);
-      return;
-    }
-    sources.forEach(s => {
-      const li = document.createElement("li");
-      // Strip .txt for display; keep full name for transparency
-      const displayFile = s.file.replace(/\.txt$/, "").replace(/_/g, " ");
-      li.innerHTML =
-        `<span class="source-file">${escHtml(displayFile)}</span>` +
-        `<span class="source-meta">chunk&nbsp;${s.chunk_index}` +
-        (s.score ? ` &middot; score&nbsp;${s.score}` : "") +
-        `</span>`;
-      sourcesList.appendChild(li);
-    });
-    show(sourcesSection);
-  }
-
-  // Minimal HTML escape to avoid injection from corpus filenames
   function escHtml(str) {
     return str
       .replace(/&/g, "&amp;")
@@ -113,116 +43,206 @@
       .replace(/"/g, "&quot;");
   }
 
-  // ── Clear response panel ────────────────────────────────────────────────
-  function clearPanel() {
-    hide(responsePanel);
-    hide(errorBox);
-    hide(safetyBox);
-    hide(sourcesSection);
-    answerText.textContent = "";
-    sourcesList.innerHTML  = "";
-    categoryBadge.textContent = "";
-    categoryBadge.className   = "badge";
-    errorBox.textContent   = "";
-    safetyBox.textContent  = "";
+  // ── Form validation ───────────────────────────────────────────────────────
+  // Runs on every keystroke or change; enables the button only when all
+  // five fields are non-empty AND no request is in flight.
+  function validate() {
+    if (askBtn.dataset.loading === "1") return;
+    var allFilled = allFields.every(function (id) {
+      return el[id].value.trim() !== "";
+    });
+    askBtn.disabled = !allFilled;
   }
 
-  // ── Render a successful response ────────────────────────────────────────
-  function renderResponse(data) {
-    hide(errorBox);
-    show(answerSection);
+  // Listen on both input (typing) and change (autofill / paste)
+  allFields.forEach(function (id) {
+    el[id].addEventListener("input",  validate);
+    el[id].addEventListener("change", validate);
+  });
 
+  // ── Character counter ─────────────────────────────────────────────────────
+  el["question"].addEventListener("input", function () {
+    var len = el["question"].value.length;
+    el["char-count"].textContent = len;
+    el["char-count"].parentElement.classList.toggle("warn", len >= 450);
+  });
+
+  // ── Loading state ─────────────────────────────────────────────────────────
+  function setLoading(active) {
+    askBtn.dataset.loading = active ? "1" : "0";
+    askBtn.disabled        = active;
+
+    var spinner = askBtn.querySelector(".btn-spinner");
+    var label   = askBtn.querySelector(".btn-label");
+
+    if (spinner) spinner.style.display = active ? "block" : "";
+    if (label)   label.textContent     = active ? "Thinking\u2026" : "Ask MotoMate";
+  }
+
+  // ── Badge ─────────────────────────────────────────────────────────────────
+  var BADGE_CLASS = {
+    maintenance:   "badge-maintenance",
+    general_info:  "badge-general_info",
+    safety_riding: "badge-safety_riding",
+    gear:          "badge-gear",
+    unsupported:   "badge-unsupported"
+  };
+  var BADGE_LABEL = {
+    maintenance:   "Maintenance",
+    general_info:  "General Info",
+    safety_riding: "Safety & Riding",
+    gear:          "Gear",
+    unsupported:   "Unsupported"
+  };
+
+  function renderBadge(category) {
+    el["category-badge"].className =
+      "badge " + (BADGE_CLASS[category] || "badge-unsupported");
+    el["category-badge"].textContent =
+      BADGE_LABEL[category] || category;
+  }
+
+  // ── Sources ───────────────────────────────────────────────────────────────
+  function renderSources(sources) {
+    el["sources-list"].innerHTML = "";
+    if (!sources || sources.length === 0) {
+      hide(el["sources-section"]);
+      return;
+    }
+    sources.forEach(function (s) {
+      var li   = document.createElement("li");
+      var name = s.file.replace(/\.txt$/i, "").replace(/_/g, " ");
+      li.innerHTML =
+        '<span class="source-file">' + escHtml(name) + "</span>" +
+        '<span class="source-meta"> chunk&nbsp;' + s.chunk_index +
+        (s.score ? " &middot; score&nbsp;" + s.score : "") +
+        "</span>";
+      el["sources-list"].appendChild(li);
+    });
+    show(el["sources-section"]);
+  }
+
+  // ── Clear panel ───────────────────────────────────────────────────────────
+  function clearPanel() {
+    hide(el["response-panel"]);
+    hide(el["error-box"]);
+    hide(el["safety-warning"]);
+    hide(el["sources-section"]);
+    el["answer-text"].textContent       = "";
+    el["sources-list"].innerHTML        = "";
+    el["category-badge"].textContent    = "";
+    el["category-badge"].className      = "badge";
+    el["error-box"].textContent         = "";
+    el["safety-warning"].textContent    = "";
+  }
+
+  // ── Render success ────────────────────────────────────────────────────────
+  function renderResponse(data) {
+    hide(el["error-box"]);
+    show(el["answer-section"]);
     renderBadge(data.category);
-    answerText.textContent = data.answer;
+    el["answer-text"].textContent = data.answer;
 
     if (data.safety_warning) {
-      safetyBox.textContent = data.safety_warning;
-      show(safetyBox);
+      el["safety-warning"].textContent = data.safety_warning;
+      show(el["safety-warning"]);
     } else {
-      hide(safetyBox);
+      hide(el["safety-warning"]);
     }
 
     renderSources(data.sources);
-    show(responsePanel);
+    show(el["response-panel"]);
   }
 
-  // ── Render an error ─────────────────────────────────────────────────────
-  function renderError(message) {
-    hide(answerSection);
-    errorBox.textContent = "⚠️ " + message;
-    show(errorBox);
-    show(responsePanel);
+  // ── Render error ──────────────────────────────────────────────────────────
+  function renderError(msg) {
+    hide(el["answer-section"]);
+    el["error-box"].textContent = "\u26A0\uFE0F " + msg;
+    show(el["error-box"]);
+    show(el["response-panel"]);
   }
 
-  // ── /api/ask ─────────────────────────────────────────────────────────────
-  askBtn.addEventListener("click", async () => {
-    const payload = {};
-    ALL_FIELDS.forEach(id => {
-      payload[id] = document.getElementById(id).value.trim();
+  // ── Ask button ────────────────────────────────────────────────────────────
+  askBtn.addEventListener("click", function () {
+    var payload = {};
+    allFields.forEach(function (id) {
+      payload[id] = el[id].value.trim();
     });
 
     clearPanel();
     setLoading(true);
 
-    try {
-      const res  = await fetch("/api/ask", {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify(payload),
+    fetch("/api/ask", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify(payload)
+    })
+    .then(function (res) {
+      return res.json().then(function (data) {
+        return { ok: res.ok, status: res.status, data: data };
       });
-      const data = await res.json();
-
-      if (!res.ok) {
-        renderError(data.error || `Server error (${res.status})`);
+    })
+    .then(function (r) {
+      if (!r.ok) {
+        renderError(r.data.error || ("Server error (" + r.status + ")"));
       } else {
-        renderResponse(data);
+        renderResponse(r.data);
       }
-    } catch (err) {
+    })
+    .catch(function (err) {
       renderError(
-        "Could not reach the server. Make sure the app is running. " +
-        "(" + err.message + ")"
+        "Could not reach the server. Is it running? (" + err.message + ")"
       );
-    } finally {
+    })
+    .finally(function () {
       setLoading(false);
-      validate(); // restore button state based on field values
-    }
+      validate();
+    });
   });
 
-  // ── /api/corpus ──────────────────────────────────────────────────────────
-  corpusBtn.addEventListener("click", async () => {
-    const text = corpusTextEl.value.trim();
+  // ── Corpus button ─────────────────────────────────────────────────────────
+  el["corpus-btn"].addEventListener("click", function () {
+    var text = el["corpus-text"].value.trim();
     if (!text) {
-      corpusStatus.textContent = "Please paste some content first.";
-      corpusStatus.className   = "corpus-status error";
+      el["corpus-status"].textContent = "Please paste some content first.";
+      el["corpus-status"].className   = "corpus-status error";
       return;
     }
 
-    corpusBtn.disabled       = true;
-    corpusStatus.textContent = "Uploading…";
-    corpusStatus.className   = "corpus-status";
+    el["corpus-btn"].disabled        = true;
+    el["corpus-status"].textContent  = "Uploading\u2026";
+    el["corpus-status"].className    = "corpus-status";
 
-    try {
-      const res  = await fetch("/api/corpus", {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ text }),
+    fetch("/api/corpus", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ text: text })
+    })
+    .then(function (res) {
+      return res.json().then(function (data) {
+        return { ok: res.ok, status: res.status, data: data };
       });
-      const data = await res.json();
-
-      if (!res.ok) {
-        corpusStatus.textContent = "Error: " + (data.error || res.status);
-        corpusStatus.className   = "corpus-status error";
+    })
+    .then(function (r) {
+      if (!r.ok) {
+        el["corpus-status"].textContent = "Error: " + (r.data.error || r.status);
+        el["corpus-status"].className   = "corpus-status error";
       } else {
-        corpusStatus.textContent = "✅ " + data.message;
-        corpusStatus.className   = "corpus-status success";
-        corpusTextEl.value       = "";
+        el["corpus-status"].textContent = "\u2705 " + r.data.message;
+        el["corpus-status"].className   = "corpus-status success";
+        el["corpus-text"].value         = "";
       }
-    } catch (err) {
-      corpusStatus.textContent = "Network error: " + err.message;
-      corpusStatus.className   = "corpus-status error";
-    } finally {
-      corpusBtn.disabled = false;
-    }
+    })
+    .catch(function (err) {
+      el["corpus-status"].textContent = "Network error: " + err.message;
+      el["corpus-status"].className   = "corpus-status error";
+    })
+    .finally(function () {
+      el["corpus-btn"].disabled = false;
+    });
   });
+
+  // ── Run validate once on load so state is correct ─────────────────────────
+  validate();
 
 })();
