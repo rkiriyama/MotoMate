@@ -2,43 +2,30 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
-  // --- Form fields ---
-  var year     = document.getElementById("year");
-  var make     = document.getElementById("make");
-  var model    = document.getElementById("model");
-  var mileage  = document.getElementById("mileage");
-  var question = document.getElementById("question");
-  var askBtn   = document.getElementById("ask-btn");
-
-  // --- Output elements (may be null — we guard every use) ---
-  var charCount    = document.getElementById("char-count");
-  var debugStatus  = document.getElementById("debug-status");
+  // --- Elements ---
+  var year          = document.getElementById("year");
+  var make          = document.getElementById("make");
+  var model         = document.getElementById("model");
+  var mileage       = document.getElementById("mileage");
+  var question      = document.getElementById("question");
+  var askBtn        = document.getElementById("ask-btn");
+  var charCount     = document.getElementById("char-count");
   var responsePanel = document.getElementById("response-panel");
-  var corpusText   = document.getElementById("corpus-text");
-  var corpusBtn    = document.getElementById("corpus-btn");
-  var corpusStatus = document.getElementById("corpus-status");
+  var corpusText    = document.getElementById("corpus-text");
+  var corpusBtn     = document.getElementById("corpus-btn");
+  var corpusStatus  = document.getElementById("corpus-status");
 
-  // Bail if any form field or button is missing
   if (!year || !make || !model || !mileage || !question || !askBtn || !responsePanel) {
-    console.error("MotoMate: required element(s) missing from page.");
+    console.error("MotoMate: a required element is missing from the page.");
     return;
   }
 
-  // --- Validate ---
+  // --- Form validation: enable button only when all 5 fields are filled ---
   function validate() {
     var ok = year.value.trim() && make.value.trim() &&
              model.value.trim() && mileage.value.trim() &&
              question.value.trim();
     askBtn.disabled = !ok;
-    if (debugStatus) {
-      debugStatus.textContent =
-        "year=" + (year.value.trim()||"?") +
-        " make=" + (make.value.trim()||"?") +
-        " model=" + (model.value.trim()||"?") +
-        " mileage=" + (mileage.value.trim()||"?") +
-        " q=" + (question.value.trim() ? "filled" : "?") +
-        " | btn=" + (ok ? "ENABLED" : "disabled");
-    }
   }
 
   [year, make, model, mileage, question].forEach(function (f) {
@@ -46,10 +33,9 @@ document.addEventListener("DOMContentLoaded", function () {
     f.addEventListener("change", validate);
     f.addEventListener("keyup",  validate);
   });
-  setInterval(validate, 500);
   validate();
 
-  // Character counter
+  // --- Character counter ---
   question.addEventListener("input", function () {
     if (charCount) charCount.textContent = question.value.length;
   });
@@ -63,16 +49,22 @@ document.addEventListener("DOMContentLoaded", function () {
     if (label)   label.textContent     = on ? "Thinking..." : "Ask MotoMate";
   }
 
-  // --- Render result directly into responsePanel via innerHTML ---
-  // No sub-element lookups — avoids null-reference crashes entirely.
-  var BADGE_COLORS = {
+  // --- HTML escape helper ---
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  // --- Badge colours and labels ---
+  var BADGE_COLOR = {
     maintenance:   "#2980b9",
     general_info:  "#27ae60",
     safety_riding: "#8e44ad",
     gear:          "#d35400",
     unsupported:   "#7f8c8d"
   };
-  var BADGE_LABELS = {
+  var BADGE_LABEL = {
     maintenance:   "Maintenance",
     general_info:  "General Info",
     safety_riding: "Safety & Riding",
@@ -80,60 +72,50 @@ document.addEventListener("DOMContentLoaded", function () {
     unsupported:   "Unsupported"
   };
 
-  function esc(s) {
-    return String(s)
-      .replace(/&/g,"&amp;").replace(/</g,"&lt;")
-      .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-  }
-
+  // --- Render a successful response into the panel ---
   function renderResponse(data) {
-    var color = BADGE_COLORS[data.category] || "#7f8c8d";
-    var label = BADGE_LABELS[data.category] || esc(data.category);
+    var color = BADGE_COLOR[data.category] || "#7f8c8d";
+    var label = BADGE_LABEL[data.category] || esc(data.category);
 
+    // Sources block
     var sourcesHtml = "";
     if (data.sources && data.sources.length > 0) {
       var items = data.sources.map(function (s) {
-        var name = esc((s.file||"").replace(/\.txt$/i,"").replace(/_/g," "));
-        return "<li>" + name + " &mdash; chunk " + s.chunk_index +
-               (s.score ? ", score " + s.score : "") + "</li>";
+        var name = esc((s.file || "").replace(/\.txt$/i, "").replace(/_/g, " "));
+        return "<li>" + name +
+               " &mdash; chunk&nbsp;" + s.chunk_index +
+               (s.score ? ",&nbsp;score&nbsp;" + s.score : "") +
+               "</li>";
       });
       sourcesHtml =
-        '<div style="margin-top:14px;padding-top:12px;border-top:1px solid #f0f0f0">' +
-        '<div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;' +
-        'color:#aaa;margin-bottom:6px">Sources</div>' +
-        '<ul style="list-style:none;padding:0;margin:0;font-size:0.82rem;color:#666">' +
-        items.join("") + "</ul></div>";
+        "<div class='resp-sources'>" +
+        "<div class='resp-sources-label'>Sources</div>" +
+        "<ul>" + items.join("") + "</ul>" +
+        "</div>";
     }
 
-    var safetyHtml = "";
-    if (data.safety_warning) {
-      safetyHtml =
-        '<div style="margin-top:14px;padding:12px 14px;background:#fffbea;' +
-        'border:1px solid #f0c040;border-left:4px solid #f0c040;border-radius:6px;' +
-        'font-size:0.92rem;color:#5a4000">' +
-        esc(data.safety_warning) + "</div>";
-    }
+    // Safety warning block
+    var safetyHtml = data.safety_warning
+      ? "<div class='resp-safety'>" + esc(data.safety_warning) + "</div>"
+      : "";
 
     responsePanel.innerHTML =
-      '<span style="display:inline-block;padding:4px 12px;border-radius:20px;' +
-      'font-size:0.78rem;font-weight:700;text-transform:uppercase;color:#fff;' +
-      'background:' + color + ';margin-bottom:12px">' + label + "</span>" +
-      '<div style="font-size:0.97rem;line-height:1.7;white-space:pre-wrap">' +
-      esc(data.answer) + "</div>" +
-      safetyHtml + sourcesHtml;
+      "<span class='resp-badge' style='background:" + color + "'>" + label + "</span>" +
+      "<div class='resp-answer'>" + esc(data.answer) + "</div>" +
+      safetyHtml +
+      sourcesHtml;
 
     responsePanel.style.display = "block";
   }
 
+  // --- Render an error into the panel ---
   function renderError(msg) {
     responsePanel.innerHTML =
-      '<div style="padding:12px 14px;background:#fef2f2;border:1px solid #fca5a5;' +
-      'border-left:4px solid #ef4444;border-radius:6px;color:#991b1b;font-size:0.92rem">' +
-      esc(msg) + "</div>";
+      "<div class='resp-error'>" + esc(msg) + "</div>";
     responsePanel.style.display = "block";
   }
 
-  // --- Ask ---
+  // --- Ask button ---
   askBtn.addEventListener("click", function () {
     var payload = JSON.stringify({
       year:     year.value.trim(),
@@ -155,27 +137,15 @@ document.addEventListener("DOMContentLoaded", function () {
     xhr.onload = function () {
       setLoading(false);
       validate();
-
-      // Always show the raw server response so we can see what came back
-      var rawDiv = document.getElementById("raw-output");
-      if (rawDiv) {
-        rawDiv.textContent = "HTTP " + xhr.status + "\n\n" + xhr.responseText;
-        rawDiv.style.display = "block";
-      }
-      console.log("MotoMate response status:", xhr.status);
-      console.log("MotoMate response body:", xhr.responseText);
-
       try {
         var data = JSON.parse(xhr.responseText);
-        console.log("MotoMate parsed data:", data);
         if (xhr.status >= 200 && xhr.status < 300) {
           renderResponse(data);
         } else {
           renderError("Server error " + xhr.status + ": " + (data.error || "unknown"));
         }
       } catch (e) {
-        console.error("MotoMate JSON parse error:", e);
-        renderError("Could not parse server response. Check the terminal for Python errors.");
+        renderError("Could not parse server response. Check the terminal for errors.");
       }
     };
 
@@ -192,13 +162,18 @@ document.addEventListener("DOMContentLoaded", function () {
     xhr.send(payload);
   });
 
-  // --- Corpus ---
+  // --- Corpus submit ---
   if (corpusBtn && corpusText && corpusStatus) {
     corpusBtn.addEventListener("click", function () {
       var text = corpusText.value.trim();
-      if (!text) { corpusStatus.textContent = "Please paste some content first."; return; }
+      if (!text) {
+        corpusStatus.textContent = "Please paste some content first.";
+        corpusStatus.className = "corpus-status error";
+        return;
+      }
       corpusBtn.disabled = true;
       corpusStatus.textContent = "Uploading...";
+      corpusStatus.className = "corpus-status";
 
       var xhr = new XMLHttpRequest();
       xhr.open("POST", "/api/corpus", true);
@@ -211,16 +186,30 @@ document.addEventListener("DOMContentLoaded", function () {
           var data = JSON.parse(xhr.responseText);
           if (xhr.status >= 200 && xhr.status < 300) {
             corpusStatus.textContent = "Done: " + data.message;
+            corpusStatus.className = "corpus-status success";
             corpusText.value = "";
           } else {
             corpusStatus.textContent = "Error: " + (data.error || xhr.status);
+            corpusStatus.className = "corpus-status error";
           }
         } catch (e) {
           corpusStatus.textContent = "Bad server response.";
+          corpusStatus.className = "corpus-status error";
         }
       };
-      xhr.onerror   = function () { corpusBtn.disabled = false; corpusStatus.textContent = "Network error."; };
-      xhr.ontimeout = function () { corpusBtn.disabled = false; corpusStatus.textContent = "Timed out."; };
+
+      xhr.onerror = function () {
+        corpusBtn.disabled = false;
+        corpusStatus.textContent = "Network error.";
+        corpusStatus.className = "corpus-status error";
+      };
+
+      xhr.ontimeout = function () {
+        corpusBtn.disabled = false;
+        corpusStatus.textContent = "Timed out.";
+        corpusStatus.className = "corpus-status error";
+      };
+
       xhr.send(JSON.stringify({ text: text }));
     });
   }

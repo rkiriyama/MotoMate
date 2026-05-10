@@ -11,7 +11,7 @@
 
   <header class="site-header">
     <h1>&#x1F3CD;&#xFE0F; MotoMate</h1>
-    <p class="subtitle">Motorcycle maintenance &amp; safety assistant — answers grounded in the local corpus only.</p>
+    <p class="subtitle">Motorcycle maintenance &amp; safety assistant &mdash; answers grounded in the local corpus only.</p>
   </header>
 
   <!-- Bike profile -->
@@ -46,40 +46,20 @@
     <div class="char-count"><span id="char-count">0</span> / 500</div>
 
     <button id="ask-btn" class="btn-primary" disabled>
-      <span class="btn-spinner" style="display:none;"></span>
+      <span class="btn-spinner"></span>
       <span class="btn-label">Ask MotoMate</span>
     </button>
-
-    <!-- Debug line: shows live field status so you can confirm JS is running -->
-    <p id="debug-status" style="margin-top:8px;font-size:0.8rem;color:#999;"></p>
   </div>
 
-  <!-- Raw debug output — shows exact server response before any rendering -->
-  <div id="raw-output" style="display:none;margin-top:16px;padding:12px;
-    background:#f8f8f8;border:1px solid #ccc;border-radius:6px;
-    font-family:monospace;font-size:0.8rem;white-space:pre-wrap;word-break:break-all;">
-  </div>
+  <!-- Response panel — filled by JS -->
+  <div id="response-panel" class="card" style="display:none;"></div>
 
-  <!-- Response panel -->
-  <div id="response-panel" class="card" style="display:none;">
-    <div id="error-box" class="error-box" style="display:none;"></div>
-    <div id="answer-section">
-      <span id="category-badge" class="badge"></span>
-      <div id="answer-text"></div>
-      <div id="safety-warning" class="safety-box" style="display:none;"></div>
-      <div id="sources-section" class="sources-section" style="display:none;">
-        <div class="sources-label">Sources</div>
-        <ul id="sources-list" class="sources-list"></ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- Add to corpus -->
+  <!-- Add to Corpus -->
   <div class="corpus-section">
     <details class="corpus-details">
       <summary>&#10133; Add to Corpus</summary>
       <div class="corpus-body">
-        <p>Paste motorcycle content to extend MotoMate's knowledge. The index rebuilds immediately.</p>
+        <p>Paste motorcycle content to extend MotoMate&rsquo;s knowledge. The index rebuilds immediately.</p>
         <label for="corpus-text">Content</label>
         <textarea id="corpus-text" rows="6"
           placeholder="Paste motorcycle content here (min 50 characters)..."></textarea>

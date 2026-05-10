@@ -1,8 +1,8 @@
-/* =========================================================
-   MotoMate — Main Stylesheet
-   ========================================================= */
+/* =====================================================
+   MotoMate — Stylesheet
+   ===================================================== */
 
-/* ── Reset & base ── */
+/* --- Reset & base --- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -14,17 +14,15 @@ body {
   min-height: 100vh;
 }
 
-/* ── Layout shell ── */
+/* --- Layout --- */
 .page-wrapper {
   max-width: 680px;
   margin: 0 auto;
   padding: 40px 20px 80px;
 }
 
-/* ── Header ── */
-.site-header {
-  margin-bottom: 32px;
-}
+/* --- Header --- */
+.site-header { margin-bottom: 32px; }
 .site-header h1 {
   font-size: 2rem;
   font-weight: 700;
@@ -32,17 +30,14 @@ body {
   color: #111;
   margin-bottom: 4px;
 }
-.site-header .subtitle {
-  font-size: 0.95rem;
-  color: #666;
-}
+.site-header .subtitle { font-size: 0.95rem; color: #666; }
 
-/* ── Card ── */
+/* --- Card --- */
 .card {
   background: #fff;
   border: 1px solid #e0e0e0;
   border-radius: 10px;
-  padding: 28px 28px 24px;
+  padding: 28px;
   margin-bottom: 20px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
@@ -55,14 +50,14 @@ body {
   margin-bottom: 16px;
 }
 
-/* ── Bike profile grid ── */
+/* --- Bike grid --- */
 .bike-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px 16px;
 }
 
-/* ── Form elements ── */
+/* --- Form elements --- */
 label {
   display: block;
   font-size: 0.85rem;
@@ -90,19 +85,9 @@ textarea:focus {
   background: #fff;
   box-shadow: 0 0 0 3px rgba(224,92,0,0.12);
 }
+textarea { resize: vertical; min-height: 80px; }
 
-textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-/* Question field label + textarea in question card */
-.question-card label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #444;
-  margin-bottom: 5px;
-}
+/* Character counter */
 .char-count {
   font-size: 0.78rem;
   color: #aaa;
@@ -111,7 +96,7 @@ textarea {
 }
 .char-count.warn { color: #e05c00; }
 
-/* ── Primary button ── */
+/* --- Primary button --- */
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -125,16 +110,12 @@ textarea {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s, opacity 0.15s;
+  transition: background 0.15s;
   user-select: none;
 }
 .btn-primary:hover:not(:disabled) { background: #c45200; }
 .btn-primary:active:not(:disabled) { background: #a84700; }
-.btn-primary:disabled {
-  background: #c8c8c8;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
+.btn-primary:disabled { background: #c8c8c8; cursor: not-allowed; opacity: 0.7; }
 
 /* Spinner inside button */
 .btn-spinner {
@@ -147,14 +128,9 @@ textarea {
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;
 }
-.btn-primary.loading .btn-spinner { display: block; }
-.btn-primary.loading .btn-label   { opacity: 0.8; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* ── Secondary button (corpus) ── */
+/* --- Secondary button (corpus) --- */
 .btn-secondary {
   display: inline-block;
   margin-top: 12px;
@@ -166,56 +142,45 @@ textarea {
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.15s;
 }
-.btn-secondary:hover:not(:disabled) {
-  background: #fff5ef;
-}
-.btn-secondary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+.btn-secondary:hover:not(:disabled) { background: #fff5ef; }
+.btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* ── Response panel ── */
+/* --- Response panel --- */
 #response-panel {
-  animation: fadeIn 0.25s ease;
+  animation: fadeIn 0.2s ease;
 }
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(5px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
 /* Category badge */
-.badge {
+.resp-badge {
   display: inline-block;
   padding: 4px 12px;
   border-radius: 20px;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #fff;
   margin-bottom: 14px;
 }
-.badge-maintenance   { background: #2980b9; }
-.badge-general_info  { background: #27ae60; }
-.badge-safety_riding { background: #8e44ad; }
-.badge-gear          { background: #d35400; }
-.badge-unsupported   { background: #7f8c8d; }
 
 /* Answer text */
-#answer-text {
+.resp-answer {
   font-size: 0.97rem;
-  line-height: 1.7;
-  color: #222;
+  line-height: 1.75;
+  color: #1a1a1a;
   white-space: pre-wrap;
 }
 
-/* Safety warning box */
-.safety-box {
-  display: none;
-  margin-top: 18px;
-  padding: 13px 16px;
+/* Safety warning */
+.resp-safety {
+  margin-top: 16px;
+  padding: 12px 14px;
   background: #fffbea;
   border: 1px solid #f0c040;
   border-left: 4px solid #f0c040;
@@ -225,47 +190,39 @@ textarea {
   line-height: 1.5;
 }
 
-/* Sources list */
-.sources-section {
-  margin-top: 18px;
+/* Sources */
+.resp-sources {
+  margin-top: 16px;
   padding-top: 14px;
   border-top: 1px solid #f0f0f0;
 }
-.sources-label {
-  font-size: 0.78rem;
+.resp-sources-label {
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  color: #aaa;
-  margin-bottom: 8px;
+  color: #bbb;
+  margin-bottom: 6px;
 }
-.sources-list {
+.resp-sources ul {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
-.sources-list li {
+.resp-sources li {
   font-size: 0.82rem;
-  color: #666;
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
+  color: #777;
 }
-.sources-list li::before {
-  content: "📄";
-  flex-shrink: 0;
+.resp-sources li::before {
+  content: "📄 ";
 }
-.source-file { font-weight: 600; color: #444; }
-.source-meta { color: #999; }
 
-/* Error box */
-.error-box {
-  display: none;
-  margin-top: 16px;
-  padding: 13px 16px;
+/* Error */
+.resp-error {
+  padding: 12px 14px;
   background: #fef2f2;
   border: 1px solid #fca5a5;
   border-left: 4px solid #ef4444;
@@ -275,10 +232,9 @@ textarea {
   line-height: 1.5;
 }
 
-/* ── Add-to-Corpus section ── */
-.corpus-section {
-  margin-top: 8px;
-}
+/* --- Add-to-Corpus --- */
+.corpus-section { margin-top: 8px; }
+
 details.corpus-details {
   background: #fff;
   border: 1px solid #e0e0e0;
@@ -305,33 +261,26 @@ details.corpus-details summary::after {
   margin-left: auto;
   color: #aaa;
   transition: transform 0.2s;
-  font-size: 0.85rem;
 }
-details.corpus-details[open] summary::after {
-  transform: rotate(90deg);
-}
+details.corpus-details[open] summary::after { transform: rotate(90deg); }
 details.corpus-details summary:hover { background: #fafafa; }
 
 .corpus-body {
   padding: 0 28px 24px;
   border-top: 1px solid #f0f0f0;
 }
-.corpus-body p {
-  font-size: 0.88rem;
-  color: #666;
-  margin: 14px 0 10px;
-}
+.corpus-body p { font-size: 0.88rem; color: #666; margin: 14px 0 10px; }
 
 .corpus-status {
   margin-top: 10px;
   min-height: 1.4em;
   font-size: 0.88rem;
-  color: #444;
+  color: #555;
 }
 .corpus-status.success { color: #166534; }
 .corpus-status.error   { color: #991b1b; }
 
-/* ── Footer ── */
+/* --- Footer --- */
 .site-footer {
   margin-top: 40px;
   text-align: center;
@@ -339,7 +288,7 @@ details.corpus-details summary:hover { background: #fafafa; }
   color: #bbb;
 }
 
-/* ── Responsive ── */
+/* --- Responsive --- */
 @media (max-width: 480px) {
   .page-wrapper { padding: 24px 16px 60px; }
   .site-header h1 { font-size: 1.6rem; }
