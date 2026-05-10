@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MotoMate — Motorcycle Assistant</title>
-  <link rel="stylesheet" href="/static/style.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 </head>
 <body>
   <div class="page-wrapper">
 
-    <!-- ── Header ── -->
+    <!-- Header -->
     <header class="site-header">
       <h1>🏍️ MotoMate</h1>
       <p class="subtitle">
@@ -18,7 +18,7 @@
       </p>
     </header>
 
-    <!-- ── Bike Profile ── -->
+    <!-- Bike Profile -->
     <div class="card">
       <div class="card-title">Your Bike</div>
       <div class="bike-grid">
@@ -41,8 +41,8 @@
       </div>
     </div>
 
-    <!-- ── Question ── -->
-    <div class="card question-card">
+    <!-- Question -->
+    <div class="card">
       <div class="card-title">Ask a Question</div>
       <label for="question">Question</label>
       <textarea
@@ -59,19 +59,21 @@
       </button>
     </div>
 
-    <!-- ── Response Panel ── -->
-    <div id="response-panel" class="card" role="region" aria-live="polite">
+    <!-- Response Panel (hidden until first response) -->
+    <div id="response-panel" class="card" style="display:none;">
 
       <!-- Error state -->
-      <div id="error-box" class="error-box" role="alert"></div>
+      <div id="error-box" class="error-box" style="display:none;"></div>
 
       <!-- Answer state -->
       <div id="answer-section">
-        <span id="category-badge" class="badge" aria-label="Category"></span>
+        <span id="category-badge" class="badge"></span>
         <div id="answer-text"></div>
 
-        <div id="safety-warning" class="safety-box" role="note"></div>
+        <!-- Safety warning -->
+        <div id="safety-warning" class="safety-box" style="display:none;"></div>
 
+        <!-- Sources -->
         <div id="sources-section" class="sources-section" style="display:none;">
           <div class="sources-label">Sources</div>
           <ul id="sources-list" class="sources-list"></ul>
@@ -80,15 +82,12 @@
 
     </div>
 
-    <!-- ── Add to Corpus ── -->
+    <!-- Add to Corpus -->
     <div class="corpus-section">
       <details class="corpus-details">
         <summary>➕ Add to Corpus</summary>
         <div class="corpus-body">
-          <p>
-            Paste motorcycle manual or guide content below to extend
-            MotoMate's knowledge. The index is rebuilt immediately.
-          </p>
+          <p>Paste motorcycle manual or guide content to extend MotoMate's knowledge. The index rebuilds immediately.</p>
           <label for="corpus-text">Content</label>
           <textarea
             id="corpus-text"
@@ -96,19 +95,17 @@
             placeholder="Paste motorcycle content here (min 50 characters)…"
           ></textarea>
           <button id="corpus-btn" class="btn-secondary">Submit to Corpus</button>
-          <div id="corpus-status" class="corpus-status" aria-live="polite"></div>
+          <div id="corpus-status" class="corpus-status"></div>
         </div>
       </details>
     </div>
 
-    <!-- ── Footer ── -->
     <footer class="site-footer">
-      MotoMate · CPSC 254 Final Project ·
-      Answers sourced from local corpus only
+      MotoMate · CPSC 254 Final Project · Answers sourced from local corpus only
     </footer>
 
-  </div><!-- /.page-wrapper -->
+  </div>
 
-  <script src="/static/app.js"></script>
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
 </body>
 </html>
