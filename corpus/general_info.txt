@@ -1,0 +1,59 @@
+Motorcycle General Information
+
+Engine Configurations
+
+Motorcycle engines come in several common configurations, each with different characteristics for power delivery, size, weight, and sound.
+
+Single-cylinder engines (singles) have one cylinder. They are simple, lightweight, and inexpensive to maintain. Singles produce strong low-to-mid range torque and have a characteristic thumping power pulse. They are common on entry-level bikes, dual-sport motorcycles, and small commuters. At highway speeds, a single-cylinder engine can feel buzzy or vibration-prone compared to multi-cylinder engines.
+
+Parallel-twin engines have two cylinders side-by-side in a single block, with both pistons sharing a common crankcase. The cylinders fire in a specific sequence that varies by design — 270-degree firing intervals (common on modern parallel-twins) give a loping, uneven feel similar to a V-twin, while 360-degree firing (both pistons move together) gives a more buzzy, even character. Parallel-twins are popular because they are compact, relatively lightweight, and more powerful and smooth than singles. Many mid-size bikes — 300cc to 800cc — use parallel-twin engines. Examples include the Honda CB500F, Kawasaki Ninja 400, and Yamaha MT-07.
+
+V-twin engines have two cylinders arranged in a V shape, sharing a common crankcase. The angle of the V varies — common angles are 45 degrees (Harley-Davidson), 60 degrees (Ducati), and 90 degrees (Moto Guzzi). A 90-degree V-twin is naturally balanced and produces minimal vibration. V-twins generally produce a distinctive exhaust note and strong low-end and mid-range torque. They are popular in cruisers, American-style motorcycles, and some sportbikes. Compared to a parallel-twin of similar displacement, a V-twin is typically wider but can be shorter front-to-back.
+
+The key difference between a parallel-twin and a V-twin is the cylinder arrangement and resulting character: parallel-twins tend to be more compact and modern-feeling, while V-twins emphasize torque, character, and a classic sound. Both can be found in similar displacement classes, but V-twins are more common in larger, cruiser-style motorcycles.
+
+Inline-four engines have four cylinders in a row. They are smooth, high-revving, and capable of producing significant peak power. Inline-fours are the dominant configuration in sportbikes and many standard/naked motorcycles above 600cc. They are wider than parallel-twins or V-twins but balance forces very smoothly at high RPM.
+
+Displacement Classes
+
+Engine displacement (measured in cubic centimeters, cc, or liters) is one of the key factors in a motorcycle's power output and character.
+
+Under 300cc: Lightweight, beginner-friendly bikes. Easy to handle, low insurance costs, good fuel economy. Examples: Honda CBR300R, Kawasaki Z125.
+
+300cc–500cc: A popular range for new and intermediate riders. Enough power for highway riding, manageable for beginners. Examples: Honda CB500F, Kawasaki Ninja 400, Royal Enfield Meteor 350.
+
+600cc–700cc: Mid-range performance. Suitable for experienced beginners or riders with prior experience. Sportbike 600cc class (supersports) are high-revving and demanding; standard/naked 600–700cc bikes are more forgiving. Examples: Yamaha MT-07 (689cc), Honda CB650R.
+
+800cc–1000cc and above: Advanced class. These bikes produce substantial power and require confident throttle management and strong riding skills. Not recommended as first bikes for most riders.
+
+Wet Clutch vs. Dry Clutch
+
+Most motorcycles use a wet clutch — the clutch plates are submerged in engine oil, which cools and lubricates them. Wet clutches are smooth, quiet, and durable. Because the oil lubricates the clutch, slipping the clutch gently during slow maneuvers does not cause significant wear.
+
+A dry clutch operates in air, without oil lubrication. Dry clutches are typically found on some Ducati models. They produce a distinctive mechanical chattering sound at idle. They require more careful slipping technique because excessive slipping generates heat without oil cooling. Dry clutches are more sensitive to adjustment and wear faster than wet clutches under city riding conditions.
+
+For practical purposes, a wet clutch is more forgiving and easier to maintain for most riders.
+
+Anti-lock Braking System (ABS)
+
+ABS (Anti-lock Braking System) prevents wheel lock-up during hard braking by rapidly modulating brake pressure. Sensors on each wheel detect when a wheel is about to lock (decelerating faster than the bike's speed implies), and a hydraulic modulator releases and reapplies brake pressure many times per second.
+
+The benefit of ABS is that it allows the rider to apply maximum braking force without skidding, even on slippery or uneven surfaces. The rider feels a pulsing sensation in the lever or pedal when ABS activates — this is normal and means the system is working.
+
+ABS has been shown in multiple studies to significantly reduce fatal crash rates for motorcycles. It is especially valuable in emergency braking situations and in wet or sandy conditions.
+
+ABS does not replace good braking technique — it is a safety net, not a substitute for skill. It also does not help with cornering traction (that requires a different system called traction control or cornering ABS). Standard ABS only operates during straight-line or near-straight braking.
+
+Many modern motorcycles come with ABS as standard or as an optional upgrade. For new and intermediate riders, ABS is strongly recommended.
+
+Traction Control
+
+Traction control systems (TCS) detect when the rear wheel is spinning faster than the front wheel — indicating wheel spin — and reduce engine power to restore traction. Like ABS, traction control is a safety net that helps prevent a loss of control during acceleration on slippery surfaces or under aggressive throttle application.
+
+Not all motorcycles have traction control. It is more common on larger and more expensive bikes. Entry-level traction control systems may feel abrupt; more advanced systems (found on premium motorcycles) are smoother and more adjustable.
+
+Fuel Systems: Carburetors vs. Fuel Injection
+
+Older motorcycles and some current small-displacement bikes use carburetors to mix air and fuel. Carburetors are mechanical devices that rely on the pressure difference created by intake airflow to draw fuel from a float bowl. They are simpler to understand and can be repaired with basic tools, but they require periodic adjustment (jetting, needle height) and are sensitive to altitude and temperature changes.
+
+Modern motorcycles almost universally use fuel injection (EFI). A fuel injection system uses sensors (throttle position, engine temperature, oxygen sensor) and an electronic control unit (ECU) to calculate the precise amount of fuel to inject. EFI provides more consistent performance across temperatures and altitudes, better fuel economy, and lower emissions. It requires no carburetor cleaning or jetting, but diagnosis requires electronic tools when problems arise.
