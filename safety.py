@@ -7,6 +7,8 @@ against a predefined set of safety-sensitive terms.
 check_safety(question, answer_text, category) → str | None
 """
 
+from typing import Optional
+
 # ---------------------------------------------------------------------------
 # Safety-sensitive keyword set
 # Topics: tires, brakes, chain/sprocket, engine internals, oil, coolant,
@@ -66,7 +68,7 @@ WARNING_TEXT = (
 )
 
 
-def check_safety(question: str, answer_text: str, category: str) -> str | None:
+def check_safety(question: str, answer_text: str, category: str) -> Optional[str]:
     """
     Determine whether the question + answer touch a safety-sensitive topic.
 

@@ -9,6 +9,7 @@ retrieve(query)             Return (top_chunks, max_score) using cosine similari
 
 import os
 import re
+from typing import Optional
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -16,9 +17,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 # ---------------------------------------------------------------------------
 # Module-level cache — rebuilt at startup and on corpus update
 # ---------------------------------------------------------------------------
-_chunks: list[dict] = []          # list of {text, file, chunk_index}
-_vectorizer: TfidfVectorizer | None = None
-_matrix = None                     # sparse TF-IDF matrix (n_chunks × vocab)
+_chunks: list = []                          # list of {text, file, chunk_index}
+_vectorizer: Optional[TfidfVectorizer] = None
+_matrix = None                              # sparse TF-IDF matrix (n_chunks × vocab)
 
 CHUNK_SIZE = 300    # approximate max words per chunk
 OVERLAP    = 50     # approximate words of overlap from previous chunk
@@ -35,7 +36,7 @@ def _split_sentences(text: str) -> list[str]:
     return [s.strip() for s in sentences if s.strip()]
 
 
-def _chunk_text(text: str, file_name: str) -> list[dict]:
+def _chunk_text(text: str, file_name: str) -> list:
     """
     Split *text* into overlapping word-bounded chunks.
 
@@ -79,7 +80,7 @@ def _chunk_text(text: str, file_name: str) -> list[dict]:
     return chunks
 
 
-def _load_corpus(corpus_dir: str) -> list[dict]:
+def _load_corpus(corpus_dir: str) -> list:
     """Read all .txt files in *corpus_dir* and return all chunks."""
     all_chunks = []
     if not os.path.isdir(corpus_dir):
@@ -130,7 +131,7 @@ def retrieve(
     query: str,
     top_k: int = 3,
     threshold: float = 0.10,
-) -> tuple[list[dict], float]:
+) -> tuple:
     """
     Return the top-k chunks most similar to *query* and the highest score.
 
