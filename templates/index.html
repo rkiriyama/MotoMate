@@ -3,109 +3,89 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MotoMate — Motorcycle Assistant</title>
+  <title>MotoMate</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 </head>
 <body>
-  <div class="page-wrapper">
+<div class="page-wrapper">
 
-    <!-- Header -->
-    <header class="site-header">
-      <h1>🏍️ MotoMate</h1>
-      <p class="subtitle">
-        Motorcycle maintenance &amp; safety assistant —
-        answers grounded in the local corpus only.
-      </p>
-    </header>
+  <header class="site-header">
+    <h1>&#x1F3CD;&#xFE0F; MotoMate</h1>
+    <p class="subtitle">Motorcycle maintenance &amp; safety assistant — answers grounded in the local corpus only.</p>
+  </header>
 
-    <!-- Bike Profile -->
-    <div class="card">
-      <div class="card-title">Your Bike</div>
-      <div class="bike-grid">
-        <div>
-          <label for="year">Year</label>
-          <input id="year" type="text" placeholder="e.g. 2020" autocomplete="off" />
-        </div>
-        <div>
-          <label for="make">Make</label>
-          <input id="make" type="text" placeholder="e.g. Honda" autocomplete="off" />
-        </div>
-        <div>
-          <label for="model">Model</label>
-          <input id="model" type="text" placeholder="e.g. CB500F" autocomplete="off" />
-        </div>
-        <div>
-          <label for="mileage">Mileage</label>
-          <input id="mileage" type="text" placeholder="e.g. 5000" autocomplete="off" />
-        </div>
+  <!-- Bike profile -->
+  <div class="card">
+    <div class="card-title">Your Bike</div>
+    <div class="bike-grid">
+      <div>
+        <label for="year">Year</label>
+        <input id="year" type="text" placeholder="e.g. 2020" />
+      </div>
+      <div>
+        <label for="make">Make</label>
+        <input id="make" type="text" placeholder="e.g. Honda" />
+      </div>
+      <div>
+        <label for="model">Model</label>
+        <input id="model" type="text" placeholder="e.g. CB500F" />
+      </div>
+      <div>
+        <label for="mileage">Mileage</label>
+        <input id="mileage" type="text" placeholder="e.g. 5000" />
       </div>
     </div>
-
-    <!-- Question -->
-    <div class="card">
-      <div class="card-title">Ask a Question</div>
-      <label for="question">Question</label>
-      <textarea
-        id="question"
-        rows="3"
-        maxlength="500"
-        placeholder="e.g. How often should I change the engine oil?"
-      ></textarea>
-      <div class="char-count"><span id="char-count">0</span> / 500</div>
-
-      <button id="ask-btn" class="btn-primary" disabled>
-        <span class="btn-spinner" aria-hidden="true"></span>
-        <span class="btn-label">Ask MotoMate</span>
-      </button>
-    </div>
-
-    <!-- Response Panel (hidden until first response) -->
-    <div id="response-panel" class="card" style="display:none;">
-
-      <!-- Error state -->
-      <div id="error-box" class="error-box" style="display:none;"></div>
-
-      <!-- Answer state -->
-      <div id="answer-section">
-        <span id="category-badge" class="badge"></span>
-        <div id="answer-text"></div>
-
-        <!-- Safety warning -->
-        <div id="safety-warning" class="safety-box" style="display:none;"></div>
-
-        <!-- Sources -->
-        <div id="sources-section" class="sources-section" style="display:none;">
-          <div class="sources-label">Sources</div>
-          <ul id="sources-list" class="sources-list"></ul>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Add to Corpus -->
-    <div class="corpus-section">
-      <details class="corpus-details">
-        <summary>&#10133; Add to Corpus</summary>
-        <div class="corpus-body">
-          <p>Paste motorcycle manual or guide content to extend MotoMate's knowledge. The index rebuilds immediately.</p>
-          <label for="corpus-text">Content</label>
-          <textarea
-            id="corpus-text"
-            rows="6"
-            placeholder="Paste motorcycle content here (min 50 characters)..."
-          ></textarea>
-          <button id="corpus-btn" class="btn-secondary">Submit to Corpus</button>
-          <div id="corpus-status" class="corpus-status"></div>
-        </div>
-      </details>
-    </div>
-
-    <footer class="site-footer">
-      MotoMate &middot; CPSC 254 Final Project &middot; Answers sourced from local corpus only
-    </footer>
-
   </div>
 
-  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+  <!-- Question -->
+  <div class="card">
+    <div class="card-title">Ask a Question</div>
+    <label for="question">Question</label>
+    <textarea id="question" rows="3" maxlength="500"
+      placeholder="e.g. How often should I change the engine oil?"></textarea>
+    <div class="char-count"><span id="char-count">0</span> / 500</div>
+
+    <button id="ask-btn" class="btn-primary" disabled>
+      <span class="btn-spinner" style="display:none;"></span>
+      <span class="btn-label">Ask MotoMate</span>
+    </button>
+
+    <!-- Debug line: shows live field status so you can confirm JS is running -->
+    <p id="debug-status" style="margin-top:8px;font-size:0.8rem;color:#999;"></p>
+  </div>
+
+  <!-- Response panel -->
+  <div id="response-panel" class="card" style="display:none;">
+    <div id="error-box" class="error-box" style="display:none;"></div>
+    <div id="answer-section">
+      <span id="category-badge" class="badge"></span>
+      <div id="answer-text"></div>
+      <div id="safety-warning" class="safety-box" style="display:none;"></div>
+      <div id="sources-section" class="sources-section" style="display:none;">
+        <div class="sources-label">Sources</div>
+        <ul id="sources-list" class="sources-list"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add to corpus -->
+  <div class="corpus-section">
+    <details class="corpus-details">
+      <summary>&#10133; Add to Corpus</summary>
+      <div class="corpus-body">
+        <p>Paste motorcycle content to extend MotoMate's knowledge. The index rebuilds immediately.</p>
+        <label for="corpus-text">Content</label>
+        <textarea id="corpus-text" rows="6"
+          placeholder="Paste motorcycle content here (min 50 characters)..."></textarea>
+        <button id="corpus-btn" class="btn-secondary">Submit to Corpus</button>
+        <div id="corpus-status" class="corpus-status"></div>
+      </div>
+    </details>
+  </div>
+
+  <footer class="site-footer">MotoMate &middot; CPSC 254 Final Project</footer>
+</div>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>

@@ -1,85 +1,87 @@
 // app.js — MotoMate frontend logic
 
-(function () {
-  "use strict";
+document.addEventListener("DOMContentLoaded", function () {
 
-  // ── Grab every element app.js needs. ────────────────────────────────────
-  // If any are null the page structure is wrong; log clearly and stop.
-  var ids = [
-    "year", "make", "model", "mileage", "question",
-    "char-count", "ask-btn",
-    "response-panel", "error-box", "answer-section",
-    "category-badge", "answer-text", "safety-warning",
-    "sources-section", "sources-list",
-    "corpus-text", "corpus-btn", "corpus-status"
-  ];
+  // --- Get every element by ID ---
+  var year        = document.getElementById("year");
+  var make        = document.getElementById("make");
+  var model       = document.getElementById("model");
+  var mileage     = document.getElementById("mileage");
+  var question    = document.getElementById("question");
+  var askBtn      = document.getElementById("ask-btn");
+  var charCount   = document.getElementById("char-count");
+  var debugStatus = document.getElementById("debug-status");
 
-  var el = {};
-  var broken = false;
-  ids.forEach(function (id) {
-    el[id] = document.getElementById(id);
-    if (!el[id]) {
-      console.error("MotoMate: missing element #" + id);
-      broken = true;
+  var responsePanel  = document.getElementById("response-panel");
+  var errorBox       = document.getElementById("error-box");
+  var answerSection  = document.getElementById("answer-section");
+  var categoryBadge  = document.getElementById("category-badge");
+  var answerText     = document.getElementById("answer-text");
+  var safetyWarning  = document.getElementById("safety-warning");
+  var sourcesSection = document.getElementById("sources-section");
+  var sourcesList    = document.getElementById("sources-list");
+
+  var corpusText   = document.getElementById("corpus-text");
+  var corpusBtn    = document.getElementById("corpus-btn");
+  var corpusStatus = document.getElementById("corpus-status");
+
+  // Bail out clearly if any critical element is missing
+  var required = {year:year, make:make, model:model, mileage:mileage,
+                  question:question, "ask-btn":askBtn};
+  for (var k in required) {
+    if (!required[k]) {
+      console.error("MotoMate: missing #" + k);
+      return;
     }
-  });
-  if (broken) {
-    console.error("MotoMate: page is missing required elements. JS will not run.");
-    return;
   }
 
-  var askBtn    = el["ask-btn"];
-  var allFields = ["year", "make", "model", "mileage", "question"];
+  // --- Helpers ---
+  function show(el) { el.style.display = ""; }
+  function hide(el) { el.style.display = "none"; }
 
-  // ── Utility ──────────────────────────────────────────────────────────────
-  function show(e) { e.style.display = ""; }
-  function hide(e) { e.style.display = "none"; }
-
-  function escHtml(str) {
-    return str
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
-  }
-
-  // ── Form validation ───────────────────────────────────────────────────────
-  // Runs on every keystroke or change; enables the button only when all
-  // five fields are non-empty AND no request is in flight.
+  // --- Validate: enable button when all 5 fields are filled ---
   function validate() {
-    if (askBtn.dataset.loading === "1") return;
-    var allFilled = allFields.every(function (id) {
-      return el[id].value.trim() !== "";
-    });
-    askBtn.disabled = !allFilled;
+    var y  = year.value.trim();
+    var mk = make.value.trim();
+    var mo = model.value.trim();
+    var mi = mileage.value.trim();
+    var q  = question.value.trim();
+    var ok = (y !== "" && mk !== "" && mo !== "" && mi !== "" && q !== "");
+    askBtn.disabled = !ok;
+    if (debugStatus) {
+      debugStatus.textContent =
+        "Fields: year=" + (y||"empty") + " make=" + (mk||"empty") +
+        " model=" + (mo||"empty") + " mileage=" + (mi||"empty") +
+        " question=" + (q ? "filled" : "empty") +
+        " => button " + (ok ? "ENABLED" : "disabled");
+    }
   }
 
-  // Listen on both input (typing) and change (autofill / paste)
-  allFields.forEach(function (id) {
-    el[id].addEventListener("input",  validate);
-    el[id].addEventListener("change", validate);
+  // Listen on input, change, AND keyup to catch typing, paste, and autofill
+  [year, make, model, mileage, question].forEach(function (field) {
+    field.addEventListener("input",  validate);
+    field.addEventListener("change", validate);
+    field.addEventListener("keyup",  validate);
   });
 
-  // ── Character counter ─────────────────────────────────────────────────────
-  el["question"].addEventListener("input", function () {
-    var len = el["question"].value.length;
-    el["char-count"].textContent = len;
-    el["char-count"].parentElement.classList.toggle("warn", len >= 450);
+  // Poll every 500ms as a final fallback for autofill that fires no events
+  setInterval(validate, 500);
+
+  // Character counter
+  question.addEventListener("input", function () {
+    if (charCount) charCount.textContent = question.value.length;
   });
 
-  // ── Loading state ─────────────────────────────────────────────────────────
-  function setLoading(active) {
-    askBtn.dataset.loading = active ? "1" : "0";
-    askBtn.disabled        = active;
-
-    var spinner = askBtn.querySelector(".btn-spinner");
-    var label   = askBtn.querySelector(".btn-label");
-
-    if (spinner) spinner.style.display = active ? "block" : "";
-    if (label)   label.textContent     = active ? "Thinking\u2026" : "Ask MotoMate";
+  // --- Loading state ---
+  function setLoading(on) {
+    askBtn.disabled = on;
+    var spinner = document.querySelector("#ask-btn .btn-spinner");
+    var label   = document.querySelector("#ask-btn .btn-label");
+    if (spinner) spinner.style.display = on ? "inline-block" : "none";
+    if (label)   label.textContent     = on ? "Thinking..." : "Ask MotoMate";
   }
 
-  // ── Badge ─────────────────────────────────────────────────────────────────
+  // --- Badge ---
   var BADGE_CLASS = {
     maintenance:   "badge-maintenance",
     general_info:  "badge-general_info",
@@ -95,154 +97,130 @@
     unsupported:   "Unsupported"
   };
 
-  function renderBadge(category) {
-    el["category-badge"].className =
-      "badge " + (BADGE_CLASS[category] || "badge-unsupported");
-    el["category-badge"].textContent =
-      BADGE_LABEL[category] || category;
-  }
+  // --- Show response ---
+  function showResponse(data) {
+    hide(errorBox);
+    show(answerSection);
 
-  // ── Sources ───────────────────────────────────────────────────────────────
-  function renderSources(sources) {
-    el["sources-list"].innerHTML = "";
-    if (!sources || sources.length === 0) {
-      hide(el["sources-section"]);
-      return;
-    }
-    sources.forEach(function (s) {
-      var li   = document.createElement("li");
-      var name = s.file.replace(/\.txt$/i, "").replace(/_/g, " ");
-      li.innerHTML =
-        '<span class="source-file">' + escHtml(name) + "</span>" +
-        '<span class="source-meta"> chunk&nbsp;' + s.chunk_index +
-        (s.score ? " &middot; score&nbsp;" + s.score : "") +
-        "</span>";
-      el["sources-list"].appendChild(li);
-    });
-    show(el["sources-section"]);
-  }
-
-  // ── Clear panel ───────────────────────────────────────────────────────────
-  function clearPanel() {
-    hide(el["response-panel"]);
-    hide(el["error-box"]);
-    hide(el["safety-warning"]);
-    hide(el["sources-section"]);
-    el["answer-text"].textContent       = "";
-    el["sources-list"].innerHTML        = "";
-    el["category-badge"].textContent    = "";
-    el["category-badge"].className      = "badge";
-    el["error-box"].textContent         = "";
-    el["safety-warning"].textContent    = "";
-  }
-
-  // ── Render success ────────────────────────────────────────────────────────
-  function renderResponse(data) {
-    hide(el["error-box"]);
-    show(el["answer-section"]);
-    renderBadge(data.category);
-    el["answer-text"].textContent = data.answer;
+    categoryBadge.className   = "badge " + (BADGE_CLASS[data.category] || "badge-unsupported");
+    categoryBadge.textContent = BADGE_LABEL[data.category]  || data.category;
+    answerText.textContent    = data.answer;
 
     if (data.safety_warning) {
-      el["safety-warning"].textContent = data.safety_warning;
-      show(el["safety-warning"]);
+      safetyWarning.textContent = data.safety_warning;
+      show(safetyWarning);
     } else {
-      hide(el["safety-warning"]);
+      hide(safetyWarning);
     }
 
-    renderSources(data.sources);
-    show(el["response-panel"]);
+    sourcesList.innerHTML = "";
+    if (data.sources && data.sources.length > 0) {
+      data.sources.forEach(function (s) {
+        var li   = document.createElement("li");
+        var name = (s.file || "").replace(/\.txt$/i, "").replace(/_/g, " ");
+        li.textContent = name + " (chunk " + s.chunk_index + ", score " + s.score + ")";
+        sourcesList.appendChild(li);
+      });
+      show(sourcesSection);
+    } else {
+      hide(sourcesSection);
+    }
+
+    show(responsePanel);
   }
 
-  // ── Render error ──────────────────────────────────────────────────────────
-  function renderError(msg) {
-    hide(el["answer-section"]);
-    el["error-box"].textContent = "\u26A0\uFE0F " + msg;
-    show(el["error-box"]);
-    show(el["response-panel"]);
+  // --- Show error ---
+  function showError(msg) {
+    hide(answerSection);
+    errorBox.textContent = msg;
+    show(errorBox);
+    show(responsePanel);
   }
 
-  // ── Ask button ────────────────────────────────────────────────────────────
+  // --- Ask button: use plain XMLHttpRequest (no fetch, no async/await) ---
   askBtn.addEventListener("click", function () {
-    var payload = {};
-    allFields.forEach(function (id) {
-      payload[id] = el[id].value.trim();
+    var payload = JSON.stringify({
+      year:     year.value.trim(),
+      make:     make.value.trim(),
+      model:    model.value.trim(),
+      mileage:  mileage.value.trim(),
+      question: question.value.trim()
     });
 
-    clearPanel();
+    hide(responsePanel);
     setLoading(true);
 
-    fetch("/api/ask", {
-      method:  "POST",
-      headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify(payload)
-    })
-    .then(function (res) {
-      return res.json().then(function (data) {
-        return { ok: res.ok, status: res.status, data: data };
-      });
-    })
-    .then(function (r) {
-      if (!r.ok) {
-        renderError(r.data.error || ("Server error (" + r.status + ")"));
-      } else {
-        renderResponse(r.data);
-      }
-    })
-    .catch(function (err) {
-      renderError(
-        "Could not reach the server. Is it running? (" + err.message + ")"
-      );
-    })
-    .finally(function () {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/api/ask");
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.timeout = 30000;
+
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState !== 4) return;
       setLoading(false);
       validate();
-    });
-  });
-
-  // ── Corpus button ─────────────────────────────────────────────────────────
-  el["corpus-btn"].addEventListener("click", function () {
-    var text = el["corpus-text"].value.trim();
-    if (!text) {
-      el["corpus-status"].textContent = "Please paste some content first.";
-      el["corpus-status"].className   = "corpus-status error";
-      return;
-    }
-
-    el["corpus-btn"].disabled        = true;
-    el["corpus-status"].textContent  = "Uploading\u2026";
-    el["corpus-status"].className    = "corpus-status";
-
-    fetch("/api/corpus", {
-      method:  "POST",
-      headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify({ text: text })
-    })
-    .then(function (res) {
-      return res.json().then(function (data) {
-        return { ok: res.ok, status: res.status, data: data };
-      });
-    })
-    .then(function (r) {
-      if (!r.ok) {
-        el["corpus-status"].textContent = "Error: " + (r.data.error || r.status);
-        el["corpus-status"].className   = "corpus-status error";
-      } else {
-        el["corpus-status"].textContent = "\u2705 " + r.data.message;
-        el["corpus-status"].className   = "corpus-status success";
-        el["corpus-text"].value         = "";
+      if (xhr.status === 0) {
+        showError("Could not reach the server. Is python app.py running?");
+        return;
       }
-    })
-    .catch(function (err) {
-      el["corpus-status"].textContent = "Network error: " + err.message;
-      el["corpus-status"].className   = "corpus-status error";
-    })
-    .finally(function () {
-      el["corpus-btn"].disabled = false;
-    });
+      try {
+        var data = JSON.parse(xhr.responseText);
+        if (xhr.status >= 200 && xhr.status < 300) {
+          showResponse(data);
+        } else {
+          showError("Error " + xhr.status + ": " + (data.error || "Unknown error"));
+        }
+      } catch (e) {
+        showError("Bad response from server. Check the terminal for Python errors.");
+      }
+    };
+
+    xhr.ontimeout = function () {
+      setLoading(false);
+      validate();
+      showError("Request timed out (30s). Check your OPENAI_API_KEY and internet connection.");
+    };
+
+    xhr.send(payload);
   });
 
-  // ── Run validate once on load so state is correct ─────────────────────────
+  // --- Corpus submit ---
+  if (corpusBtn && corpusText && corpusStatus) {
+    corpusBtn.addEventListener("click", function () {
+      var text = corpusText.value.trim();
+      if (!text) {
+        corpusStatus.textContent = "Please paste some content first.";
+        return;
+      }
+      corpusBtn.disabled       = true;
+      corpusStatus.textContent = "Uploading...";
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/corpus");
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.timeout = 15000;
+
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState !== 4) return;
+        corpusBtn.disabled = false;
+        try {
+          var data = JSON.parse(xhr.responseText);
+          if (xhr.status >= 200 && xhr.status < 300) {
+            corpusStatus.textContent = "Done: " + data.message;
+            corpusText.value = "";
+          } else {
+            corpusStatus.textContent = "Error: " + (data.error || xhr.status);
+          }
+        } catch (e) {
+          corpusStatus.textContent = "Bad server response.";
+        }
+      };
+
+      xhr.send(JSON.stringify({ text: text }));
+    });
+  }
+
+  // Run once on load
   validate();
 
-})();
+}); // end DOMContentLoaded
