@@ -1,0 +1,351 @@
+/* =========================================================
+   MotoMate — Main Stylesheet
+   ========================================================= */
+
+/* ── Reset & base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  background: #f0f2f5;
+  color: #1a1a1a;
+  min-height: 100vh;
+}
+
+/* ── Layout shell ── */
+.page-wrapper {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+/* ── Header ── */
+.site-header {
+  margin-bottom: 32px;
+}
+.site-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: #111;
+  margin-bottom: 4px;
+}
+.site-header .subtitle {
+  font-size: 0.95rem;
+  color: #666;
+}
+
+/* ── Card ── */
+.card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 28px 28px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #888;
+  margin-bottom: 16px;
+}
+
+/* ── Bike profile grid ── */
+.bike-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+}
+
+/* ── Form elements ── */
+label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 5px;
+}
+
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: #1a1a1a;
+  background: #fafafa;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+input[type="text"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: #e05c00;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(224,92,0,0.12);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Question field label + textarea in question card */
+.question-card label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 5px;
+}
+.char-count {
+  font-size: 0.78rem;
+  color: #aaa;
+  text-align: right;
+  margin-top: 4px;
+}
+.char-count.warn { color: #e05c00; }
+
+/* ── Primary button ── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 11px 28px;
+  background: #e05c00;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+  user-select: none;
+}
+.btn-primary:hover:not(:disabled) { background: #c45200; }
+.btn-primary:active:not(:disabled) { background: #a84700; }
+.btn-primary:disabled {
+  background: #c8c8c8;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Spinner inside button */
+.btn-spinner {
+  display: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+.btn-primary.loading .btn-spinner { display: block; }
+.btn-primary.loading .btn-label   { opacity: 0.8; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Secondary button (corpus) ── */
+.btn-secondary {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 9px 22px;
+  background: #fff;
+  color: #e05c00;
+  border: 1.5px solid #e05c00;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-secondary:hover:not(:disabled) {
+  background: #fff5ef;
+}
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Response panel ── */
+#response-panel {
+  display: none;
+  animation: fadeIn 0.25s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Category badge */
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #fff;
+  margin-bottom: 14px;
+}
+.badge-maintenance   { background: #2980b9; }
+.badge-general_info  { background: #27ae60; }
+.badge-safety_riding { background: #8e44ad; }
+.badge-gear          { background: #d35400; }
+.badge-unsupported   { background: #7f8c8d; }
+
+/* Answer text */
+#answer-text {
+  font-size: 0.97rem;
+  line-height: 1.7;
+  color: #222;
+  white-space: pre-wrap;
+}
+
+/* Safety warning box */
+.safety-box {
+  display: none;
+  margin-top: 18px;
+  padding: 13px 16px;
+  background: #fffbea;
+  border: 1px solid #f0c040;
+  border-left: 4px solid #f0c040;
+  border-radius: 6px;
+  font-size: 0.92rem;
+  color: #5a4000;
+  line-height: 1.5;
+}
+
+/* Sources list */
+.sources-section {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #f0f0f0;
+}
+.sources-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #aaa;
+  margin-bottom: 8px;
+}
+.sources-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sources-list li {
+  font-size: 0.82rem;
+  color: #666;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.sources-list li::before {
+  content: "📄";
+  flex-shrink: 0;
+}
+.source-file { font-weight: 600; color: #444; }
+.source-meta { color: #999; }
+
+/* Error box */
+.error-box {
+  display: none;
+  margin-top: 16px;
+  padding: 13px 16px;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-left: 4px solid #ef4444;
+  border-radius: 6px;
+  font-size: 0.92rem;
+  color: #991b1b;
+  line-height: 1.5;
+}
+
+/* ── Add-to-Corpus section ── */
+.corpus-section {
+  margin-top: 8px;
+}
+details.corpus-details {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+details.corpus-details summary {
+  padding: 16px 28px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #444;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+  transition: background 0.12s;
+}
+details.corpus-details summary::-webkit-details-marker { display: none; }
+details.corpus-details summary::after {
+  content: "▸";
+  margin-left: auto;
+  color: #aaa;
+  transition: transform 0.2s;
+  font-size: 0.85rem;
+}
+details.corpus-details[open] summary::after {
+  transform: rotate(90deg);
+}
+details.corpus-details summary:hover { background: #fafafa; }
+
+.corpus-body {
+  padding: 0 28px 24px;
+  border-top: 1px solid #f0f0f0;
+}
+.corpus-body p {
+  font-size: 0.88rem;
+  color: #666;
+  margin: 14px 0 10px;
+}
+
+.corpus-status {
+  margin-top: 10px;
+  min-height: 1.4em;
+  font-size: 0.88rem;
+  color: #444;
+}
+.corpus-status.success { color: #166534; }
+.corpus-status.error   { color: #991b1b; }
+
+/* ── Footer ── */
+.site-footer {
+  margin-top: 40px;
+  text-align: center;
+  font-size: 0.78rem;
+  color: #bbb;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .page-wrapper { padding: 24px 16px 60px; }
+  .site-header h1 { font-size: 1.6rem; }
+  .card { padding: 20px 18px; }
+  .bike-grid { grid-template-columns: 1fr; }
+  details.corpus-details summary { padding: 14px 18px; }
+  .corpus-body { padding: 0 18px 20px; }
+}

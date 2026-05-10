@@ -1,136 +1,228 @@
 // app.js — MotoMate frontend logic
-// Phase 5 (full implementation) is pending.
-// This stub wires up form validation and the /api/ask + /api/corpus fetches
-// so the backend can be tested end-to-end from a browser today.
 
 (function () {
   "use strict";
 
-  const fields   = ["year", "make", "model", "mileage", "question"];
-  const askBtn   = document.getElementById("ask-btn");
-  const spinner  = document.getElementById("spinner");
-  const panel    = document.getElementById("response-panel");
+  // ── Element references ──────────────────────────────────────────────────
+  const PROFILE_FIELDS = ["year", "make", "model", "mileage"];
+  const ALL_FIELDS     = [...PROFILE_FIELDS, "question"];
 
-  // ── Form validation: enable Ask button only when all fields are filled ──
-  function validate() {
-    const allFilled = fields.every(id => document.getElementById(id).value.trim() !== "");
-    askBtn.disabled = !allFilled;
-  }
-  fields.forEach(id => document.getElementById(id).addEventListener("input", validate));
+  const askBtn        = document.getElementById("ask-btn");
+  const questionEl    = document.getElementById("question");
+  const charCountEl   = document.getElementById("char-count");
+  const responsePanel = document.getElementById("response-panel");
 
-  // ── Helper: show/hide elements ──
+  // Response sub-elements
+  const errorBox      = document.getElementById("error-box");
+  const answerSection = document.getElementById("answer-section");
+  const categoryBadge = document.getElementById("category-badge");
+  const answerText    = document.getElementById("answer-text");
+  const safetyBox     = document.getElementById("safety-warning");
+  const sourcesSection= document.getElementById("sources-section");
+  const sourcesList   = document.getElementById("sources-list");
+
+  // Corpus elements
+  const corpusBtn     = document.getElementById("corpus-btn");
+  const corpusTextEl  = document.getElementById("corpus-text");
+  const corpusStatus  = document.getElementById("corpus-status");
+
+  // ── Utility helpers ─────────────────────────────────────────────────────
   function show(el) { el.style.display = ""; }
   function hide(el) { el.style.display = "none"; }
-  function setText(el, text) { el.textContent = text; }
 
-  // ── Category badge ──
-  const BADGE_CLASSES = {
+  // ── Character counter ───────────────────────────────────────────────────
+  questionEl.addEventListener("input", () => {
+    const len = questionEl.value.length;
+    charCountEl.textContent = len;
+    charCountEl.parentElement.classList.toggle("warn", len >= 450);
+  });
+
+  // ── Form validation: enable Ask only when all fields are non-empty ──────
+  function validate() {
+    const allFilled = ALL_FIELDS.every(
+      id => document.getElementById(id).value.trim() !== ""
+    );
+    // Don't re-enable while a request is in flight
+    if (!askBtn.classList.contains("loading")) {
+      askBtn.disabled = !allFilled;
+    }
+  }
+  ALL_FIELDS.forEach(id =>
+    document.getElementById(id).addEventListener("input", validate)
+  );
+
+  // ── Loading state helpers ───────────────────────────────────────────────
+  function setLoading(active) {
+    askBtn.classList.toggle("loading", active);
+    askBtn.disabled = active;
+    askBtn.querySelector(".btn-label").textContent = active
+      ? "Thinking…"
+      : "Ask MotoMate";
+  }
+
+  // ── Badge rendering ─────────────────────────────────────────────────────
+  const BADGE_CLASS = {
     maintenance:   "badge-maintenance",
     general_info:  "badge-general_info",
     safety_riding: "badge-safety_riding",
     gear:          "badge-gear",
     unsupported:   "badge-unsupported",
   };
+  const BADGE_LABEL = {
+    maintenance:   "Maintenance",
+    general_info:  "General Info",
+    safety_riding: "Safety & Riding",
+    gear:          "Gear",
+    unsupported:   "Unsupported",
+  };
+
   function renderBadge(category) {
-    const badge = document.getElementById("category-badge");
-    badge.className = "badge " + (BADGE_CLASSES[category] || "badge-unsupported");
-    badge.textContent = category.replace("_", " ");
+    categoryBadge.className =
+      "badge " + (BADGE_CLASS[category] || "badge-unsupported");
+    categoryBadge.textContent =
+      BADGE_LABEL[category] || category;
   }
 
-  // ── Render a successful /api/ask response ──
+  // ── Source list rendering ───────────────────────────────────────────────
+  function renderSources(sources) {
+    sourcesList.innerHTML = "";
+    if (!sources || sources.length === 0) {
+      hide(sourcesSection);
+      return;
+    }
+    sources.forEach(s => {
+      const li = document.createElement("li");
+      // Strip .txt for display; keep full name for transparency
+      const displayFile = s.file.replace(/\.txt$/, "").replace(/_/g, " ");
+      li.innerHTML =
+        `<span class="source-file">${escHtml(displayFile)}</span>` +
+        `<span class="source-meta">chunk&nbsp;${s.chunk_index}` +
+        (s.score ? ` &middot; score&nbsp;${s.score}` : "") +
+        `</span>`;
+      sourcesList.appendChild(li);
+    });
+    show(sourcesSection);
+  }
+
+  // Minimal HTML escape to avoid injection from corpus filenames
+  function escHtml(str) {
+    return str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  // ── Clear response panel ────────────────────────────────────────────────
+  function clearPanel() {
+    hide(responsePanel);
+    hide(errorBox);
+    hide(safetyBox);
+    hide(sourcesSection);
+    answerText.textContent = "";
+    sourcesList.innerHTML  = "";
+    categoryBadge.textContent = "";
+    categoryBadge.className   = "badge";
+    errorBox.textContent   = "";
+    safetyBox.textContent  = "";
+  }
+
+  // ── Render a successful response ────────────────────────────────────────
   function renderResponse(data) {
-    hide(document.getElementById("error-box"));
+    hide(errorBox);
+    show(answerSection);
 
     renderBadge(data.category);
-    setText(document.getElementById("answer-text"), data.answer);
+    answerText.textContent = data.answer;
 
-    const safetyBox = document.getElementById("safety-warning");
     if (data.safety_warning) {
-      setText(safetyBox, data.safety_warning);
+      safetyBox.textContent = data.safety_warning;
       show(safetyBox);
     } else {
       hide(safetyBox);
     }
 
-    const sourcesDiv = document.getElementById("sources");
-    if (data.sources && data.sources.length > 0) {
-      const lines = data.sources.map(s =>
-        `📄 ${s.file} (chunk ${s.chunk_index}, score ${s.score})`
-      );
-      setText(sourcesDiv, "Sources: " + lines.join(" · "));
-    } else {
-      setText(sourcesDiv, "");
-    }
-
-    show(panel);
+    renderSources(data.sources);
+    show(responsePanel);
   }
 
-  // ── Render an error ──
+  // ── Render an error ─────────────────────────────────────────────────────
   function renderError(message) {
-    const errorBox = document.getElementById("error-box");
-    setText(errorBox, "⚠️ " + message);
+    hide(answerSection);
+    errorBox.textContent = "⚠️ " + message;
     show(errorBox);
-    show(panel);
+    show(responsePanel);
   }
 
-  // ── /api/ask submission ──
+  // ── /api/ask ─────────────────────────────────────────────────────────────
   askBtn.addEventListener("click", async () => {
     const payload = {};
-    fields.forEach(id => { payload[id] = document.getElementById(id).value.trim(); });
+    ALL_FIELDS.forEach(id => {
+      payload[id] = document.getElementById(id).value.trim();
+    });
 
-    askBtn.disabled = true;
-    show(spinner);
-    hide(panel);
+    clearPanel();
+    setLoading(true);
 
     try {
-      const res = await fetch("/api/ask", {
+      const res  = await fetch("/api/ask", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify(payload),
       });
       const data = await res.json();
+
       if (!res.ok) {
         renderError(data.error || `Server error (${res.status})`);
       } else {
         renderResponse(data);
       }
     } catch (err) {
-      renderError("Network error — is the server running? " + err.message);
+      renderError(
+        "Could not reach the server. Make sure the app is running. " +
+        "(" + err.message + ")"
+      );
     } finally {
-      hide(spinner);
-      validate(); // re-enable button if fields still filled
+      setLoading(false);
+      validate(); // restore button state based on field values
     }
   });
 
-  // ── /api/corpus submission ──
-  const corpusBtn    = document.getElementById("corpus-btn");
-  const corpusStatus = document.getElementById("corpus-status");
-
+  // ── /api/corpus ──────────────────────────────────────────────────────────
   corpusBtn.addEventListener("click", async () => {
-    const text = document.getElementById("corpus-text").value.trim();
+    const text = corpusTextEl.value.trim();
     if (!text) {
       corpusStatus.textContent = "Please paste some content first.";
+      corpusStatus.className   = "corpus-status error";
       return;
     }
-    corpusBtn.disabled = true;
+
+    corpusBtn.disabled       = true;
     corpusStatus.textContent = "Uploading…";
+    corpusStatus.className   = "corpus-status";
+
     try {
-      const res = await fetch("/api/corpus", {
+      const res  = await fetch("/api/corpus", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({ text }),
       });
       const data = await res.json();
+
       if (!res.ok) {
         corpusStatus.textContent = "Error: " + (data.error || res.status);
+        corpusStatus.className   = "corpus-status error";
       } else {
         corpusStatus.textContent = "✅ " + data.message;
-        document.getElementById("corpus-text").value = "";
+        corpusStatus.className   = "corpus-status success";
+        corpusTextEl.value       = "";
       }
     } catch (err) {
       corpusStatus.textContent = "Network error: " + err.message;
+      corpusStatus.className   = "corpus-status error";
     } finally {
       corpusBtn.disabled = false;
     }
   });
+
 })();
