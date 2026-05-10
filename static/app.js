@@ -2,70 +2,52 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
-  // --- Get every element by ID ---
-  var year        = document.getElementById("year");
-  var make        = document.getElementById("make");
-  var model       = document.getElementById("model");
-  var mileage     = document.getElementById("mileage");
-  var question    = document.getElementById("question");
-  var askBtn      = document.getElementById("ask-btn");
-  var charCount   = document.getElementById("char-count");
-  var debugStatus = document.getElementById("debug-status");
+  // --- Form fields ---
+  var year     = document.getElementById("year");
+  var make     = document.getElementById("make");
+  var model    = document.getElementById("model");
+  var mileage  = document.getElementById("mileage");
+  var question = document.getElementById("question");
+  var askBtn   = document.getElementById("ask-btn");
 
-  var responsePanel  = document.getElementById("response-panel");
-  var errorBox       = document.getElementById("error-box");
-  var answerSection  = document.getElementById("answer-section");
-  var categoryBadge  = document.getElementById("category-badge");
-  var answerText     = document.getElementById("answer-text");
-  var safetyWarning  = document.getElementById("safety-warning");
-  var sourcesSection = document.getElementById("sources-section");
-  var sourcesList    = document.getElementById("sources-list");
-
+  // --- Output elements (may be null — we guard every use) ---
+  var charCount    = document.getElementById("char-count");
+  var debugStatus  = document.getElementById("debug-status");
+  var responsePanel = document.getElementById("response-panel");
   var corpusText   = document.getElementById("corpus-text");
   var corpusBtn    = document.getElementById("corpus-btn");
   var corpusStatus = document.getElementById("corpus-status");
 
-  // Bail out clearly if any critical element is missing
-  var required = {year:year, make:make, model:model, mileage:mileage,
-                  question:question, "ask-btn":askBtn};
-  for (var k in required) {
-    if (!required[k]) {
-      console.error("MotoMate: missing #" + k);
-      return;
-    }
+  // Bail if any form field or button is missing
+  if (!year || !make || !model || !mileage || !question || !askBtn || !responsePanel) {
+    console.error("MotoMate: required element(s) missing from page.");
+    return;
   }
 
-  // --- Helpers ---
-  function show(el) { el.style.display = ""; }
-  function hide(el) { el.style.display = "none"; }
-
-  // --- Validate: enable button when all 5 fields are filled ---
+  // --- Validate ---
   function validate() {
-    var y  = year.value.trim();
-    var mk = make.value.trim();
-    var mo = model.value.trim();
-    var mi = mileage.value.trim();
-    var q  = question.value.trim();
-    var ok = (y !== "" && mk !== "" && mo !== "" && mi !== "" && q !== "");
+    var ok = year.value.trim() && make.value.trim() &&
+             model.value.trim() && mileage.value.trim() &&
+             question.value.trim();
     askBtn.disabled = !ok;
     if (debugStatus) {
       debugStatus.textContent =
-        "Fields: year=" + (y||"empty") + " make=" + (mk||"empty") +
-        " model=" + (mo||"empty") + " mileage=" + (mi||"empty") +
-        " question=" + (q ? "filled" : "empty") +
-        " => button " + (ok ? "ENABLED" : "disabled");
+        "year=" + (year.value.trim()||"?") +
+        " make=" + (make.value.trim()||"?") +
+        " model=" + (model.value.trim()||"?") +
+        " mileage=" + (mileage.value.trim()||"?") +
+        " q=" + (question.value.trim() ? "filled" : "?") +
+        " | btn=" + (ok ? "ENABLED" : "disabled");
     }
   }
 
-  // Listen on input, change, AND keyup to catch typing, paste, and autofill
-  [year, make, model, mileage, question].forEach(function (field) {
-    field.addEventListener("input",  validate);
-    field.addEventListener("change", validate);
-    field.addEventListener("keyup",  validate);
+  [year, make, model, mileage, question].forEach(function (f) {
+    f.addEventListener("input",  validate);
+    f.addEventListener("change", validate);
+    f.addEventListener("keyup",  validate);
   });
-
-  // Poll every 500ms as a final fallback for autofill that fires no events
   setInterval(validate, 500);
+  validate();
 
   // Character counter
   question.addEventListener("input", function () {
@@ -75,21 +57,22 @@ document.addEventListener("DOMContentLoaded", function () {
   // --- Loading state ---
   function setLoading(on) {
     askBtn.disabled = on;
-    var spinner = document.querySelector("#ask-btn .btn-spinner");
-    var label   = document.querySelector("#ask-btn .btn-label");
+    var spinner = askBtn.querySelector(".btn-spinner");
+    var label   = askBtn.querySelector(".btn-label");
     if (spinner) spinner.style.display = on ? "inline-block" : "none";
     if (label)   label.textContent     = on ? "Thinking..." : "Ask MotoMate";
   }
 
-  // --- Badge ---
-  var BADGE_CLASS = {
-    maintenance:   "badge-maintenance",
-    general_info:  "badge-general_info",
-    safety_riding: "badge-safety_riding",
-    gear:          "badge-gear",
-    unsupported:   "badge-unsupported"
+  // --- Render result directly into responsePanel via innerHTML ---
+  // No sub-element lookups — avoids null-reference crashes entirely.
+  var BADGE_COLORS = {
+    maintenance:   "#2980b9",
+    general_info:  "#27ae60",
+    safety_riding: "#8e44ad",
+    gear:          "#d35400",
+    unsupported:   "#7f8c8d"
   };
-  var BADGE_LABEL = {
+  var BADGE_LABELS = {
     maintenance:   "Maintenance",
     general_info:  "General Info",
     safety_riding: "Safety & Riding",
@@ -97,47 +80,60 @@ document.addEventListener("DOMContentLoaded", function () {
     unsupported:   "Unsupported"
   };
 
-  // --- Show response ---
-  function showResponse(data) {
-    hide(errorBox);
-    show(answerSection);
+  function esc(s) {
+    return String(s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
 
-    categoryBadge.className   = "badge " + (BADGE_CLASS[data.category] || "badge-unsupported");
-    categoryBadge.textContent = BADGE_LABEL[data.category]  || data.category;
-    answerText.textContent    = data.answer;
+  function renderResponse(data) {
+    var color = BADGE_COLORS[data.category] || "#7f8c8d";
+    var label = BADGE_LABELS[data.category] || esc(data.category);
 
-    if (data.safety_warning) {
-      safetyWarning.textContent = data.safety_warning;
-      show(safetyWarning);
-    } else {
-      hide(safetyWarning);
-    }
-
-    sourcesList.innerHTML = "";
+    var sourcesHtml = "";
     if (data.sources && data.sources.length > 0) {
-      data.sources.forEach(function (s) {
-        var li   = document.createElement("li");
-        var name = (s.file || "").replace(/\.txt$/i, "").replace(/_/g, " ");
-        li.textContent = name + " (chunk " + s.chunk_index + ", score " + s.score + ")";
-        sourcesList.appendChild(li);
+      var items = data.sources.map(function (s) {
+        var name = esc((s.file||"").replace(/\.txt$/i,"").replace(/_/g," "));
+        return "<li>" + name + " &mdash; chunk " + s.chunk_index +
+               (s.score ? ", score " + s.score : "") + "</li>";
       });
-      show(sourcesSection);
-    } else {
-      hide(sourcesSection);
+      sourcesHtml =
+        '<div style="margin-top:14px;padding-top:12px;border-top:1px solid #f0f0f0">' +
+        '<div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;' +
+        'color:#aaa;margin-bottom:6px">Sources</div>' +
+        '<ul style="list-style:none;padding:0;margin:0;font-size:0.82rem;color:#666">' +
+        items.join("") + "</ul></div>";
     }
 
-    show(responsePanel);
+    var safetyHtml = "";
+    if (data.safety_warning) {
+      safetyHtml =
+        '<div style="margin-top:14px;padding:12px 14px;background:#fffbea;' +
+        'border:1px solid #f0c040;border-left:4px solid #f0c040;border-radius:6px;' +
+        'font-size:0.92rem;color:#5a4000">' +
+        esc(data.safety_warning) + "</div>";
+    }
+
+    responsePanel.innerHTML =
+      '<span style="display:inline-block;padding:4px 12px;border-radius:20px;' +
+      'font-size:0.78rem;font-weight:700;text-transform:uppercase;color:#fff;' +
+      'background:' + color + ';margin-bottom:12px">' + label + "</span>" +
+      '<div style="font-size:0.97rem;line-height:1.7;white-space:pre-wrap">' +
+      esc(data.answer) + "</div>" +
+      safetyHtml + sourcesHtml;
+
+    responsePanel.style.display = "";
   }
 
-  // --- Show error ---
-  function showError(msg) {
-    hide(answerSection);
-    errorBox.textContent = msg;
-    show(errorBox);
-    show(responsePanel);
+  function renderError(msg) {
+    responsePanel.innerHTML =
+      '<div style="padding:12px 14px;background:#fef2f2;border:1px solid #fca5a5;' +
+      'border-left:4px solid #ef4444;border-radius:6px;color:#991b1b;font-size:0.92rem">' +
+      esc(msg) + "</div>";
+    responsePanel.style.display = "";
   }
 
-  // --- Ask button: use plain XMLHttpRequest (no fetch, no async/await) ---
+  // --- Ask ---
   askBtn.addEventListener("click", function () {
     var payload = JSON.stringify({
       year:     year.value.trim(),
@@ -147,61 +143,57 @@ document.addEventListener("DOMContentLoaded", function () {
       question: question.value.trim()
     });
 
-    hide(responsePanel);
+    responsePanel.style.display = "none";
+    responsePanel.innerHTML = "";
     setLoading(true);
 
     var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/api/ask");
+    xhr.open("POST", "/api/ask", true);
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.timeout = 30000;
 
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState !== 4) return;
+    xhr.onload = function () {
       setLoading(false);
       validate();
-      if (xhr.status === 0) {
-        showError("Could not reach the server. Is python app.py running?");
-        return;
-      }
       try {
         var data = JSON.parse(xhr.responseText);
         if (xhr.status >= 200 && xhr.status < 300) {
-          showResponse(data);
+          renderResponse(data);
         } else {
-          showError("Error " + xhr.status + ": " + (data.error || "Unknown error"));
+          renderError("Server error " + xhr.status + ": " + (data.error || "unknown"));
         }
       } catch (e) {
-        showError("Bad response from server. Check the terminal for Python errors.");
+        renderError("Could not parse server response. Check the terminal for Python errors.");
       }
     };
 
+    xhr.onerror = function () {
+      setLoading(false); validate();
+      renderError("Network error — is python app.py running on port 5000?");
+    };
+
     xhr.ontimeout = function () {
-      setLoading(false);
-      validate();
-      showError("Request timed out (30s). Check your OPENAI_API_KEY and internet connection.");
+      setLoading(false); validate();
+      renderError("Request timed out (30 s). Check your OPENAI_API_KEY and internet connection.");
     };
 
     xhr.send(payload);
   });
 
-  // --- Corpus submit ---
+  // --- Corpus ---
   if (corpusBtn && corpusText && corpusStatus) {
     corpusBtn.addEventListener("click", function () {
       var text = corpusText.value.trim();
-      if (!text) {
-        corpusStatus.textContent = "Please paste some content first.";
-        return;
-      }
-      corpusBtn.disabled       = true;
+      if (!text) { corpusStatus.textContent = "Please paste some content first."; return; }
+      corpusBtn.disabled = true;
       corpusStatus.textContent = "Uploading...";
 
       var xhr = new XMLHttpRequest();
-      xhr.open("POST", "/api/corpus");
+      xhr.open("POST", "/api/corpus", true);
       xhr.setRequestHeader("Content-Type", "application/json");
       xhr.timeout = 15000;
 
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState !== 4) return;
+      xhr.onload = function () {
         corpusBtn.disabled = false;
         try {
           var data = JSON.parse(xhr.responseText);
@@ -215,12 +207,10 @@ document.addEventListener("DOMContentLoaded", function () {
           corpusStatus.textContent = "Bad server response.";
         }
       };
-
+      xhr.onerror   = function () { corpusBtn.disabled = false; corpusStatus.textContent = "Network error."; };
+      xhr.ontimeout = function () { corpusBtn.disabled = false; corpusStatus.textContent = "Timed out."; };
       xhr.send(JSON.stringify({ text: text }));
     });
   }
-
-  // Run once on load
-  validate();
 
 }); // end DOMContentLoaded
