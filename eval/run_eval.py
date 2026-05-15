@@ -21,6 +21,7 @@ Prints a per-case table and the final motomate_score.
 
 import json
 import sys
+import textwrap
 import urllib.request
 import urllib.error
 
@@ -163,6 +164,7 @@ def main():
 
     correct = 0
     total   = len(cases)
+    results = []  # collect (tc, resp) for the Q&A summary at the end
 
     for tc in cases:
         tc_id = tc["id"]
@@ -189,6 +191,7 @@ def main():
                 f"  {note}"
             )
             print(row)
+            results.append({"tc": tc, "resp": resp})
             continue
 
         scores = score_case(tc, resp)
@@ -217,10 +220,39 @@ def main():
             f"  {note}"
         )
         print(row)
+        results.append({"tc": tc, "resp": resp})
 
     print("-" * 78)
     score = correct / total if total else 0.0
     print(f"\n  motomate_score = {correct}/{total} = {score:.3f}\n")
+    print("=" * 78)
+
+    # --- Per-case question + answer summary ---
+    print()
+    print("=" * 78)
+    print("  Questions & Answers")
+    print("=" * 78)
+    for entry in results:
+        tc   = entry["tc"]
+        resp = entry["resp"]
+        print()
+        print(f"[{tc['id']}] {tc['question']}")
+        print(f"  Bike    : {tc['year']} {tc['make']} {tc['model']} ({tc['mileage']} mi)")
+        print(f"  Category: {resp.get('category', 'n/a')}")
+        answer = resp.get("answer", "")
+        # Wrap answer text at 72 chars for readability
+        for line in textwrap.wrap(answer, width=72):
+            print(f"  {line}")
+        if resp.get("safety_warning"):
+            print(f"  ⚠  {resp['safety_warning']}")
+        sources = resp.get("sources") or []
+        if sources:
+            src_str = ", ".join(
+                f"{s.get('file','?')} (chunk {s.get('chunk_index','?')})"
+                for s in sources
+            )
+            print(f"  Sources : {src_str}")
+    print()
     print("=" * 78)
     print()
 
