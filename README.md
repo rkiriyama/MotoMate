@@ -21,6 +21,8 @@ MotoMate is an AI-powered motorcycle maintenance and safety assistant for beginn
 - An OpenAI API key (provided as a `.env` file containing only `OPENAI_API_KEY`)
 - Internet connection (for OpenAI API calls)
 
+> **Prerequisites:** Git and Python 3.11+ must be installed. Check with `python3 --version`.
+
 ---
 
 ## Setup
