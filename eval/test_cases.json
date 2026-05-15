@@ -92,7 +92,7 @@
     "question": "How does ABS work on a motorcycle?",
     "expected_category": "general_info",
     "expect_answer": true,
-    "expect_safety_warning": false,
+    "expect_safety_warning": true,
     "expected_source_keyword": "abs"
   },
   {
@@ -128,5 +128,28 @@
     "expected_category": "unsupported",
     "expect_answer": false,
     "expect_safety_warning": false
+  },
+  {
+    "id": "tc12",
+    "year": "2021",
+    "make": "Honda",
+    "model": "CB500F",
+    "mileage": "9000",
+    "question": "What is the exact valve clearance specification for my Honda CB500F?",
+    "expected_category": "maintenance",
+    "expect_answer": false,
+    "expect_safety_warning": false
+  },
+  {
+    "id": "tc13",
+    "year": "2022",
+    "make": "Kawasaki",
+    "model": "Ninja 400",
+    "mileage": "4000",
+    "question": "Is it safe to ride a motorcycle in the rain?",
+    "expected_category": "safety_riding",
+    "expect_answer": true,
+    "expect_safety_warning": true,
+    "expected_source_keyword": "slippery"
   }
 ]
