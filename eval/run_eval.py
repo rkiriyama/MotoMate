@@ -146,13 +146,22 @@ def main():
         print("Make sure the app is running:  python app.py")
         sys.exit(1)
 
-    # --- Collect all results first ---
+    # --- Run tests, printing each Q&A as it completes ---
     correct = 0
     total   = len(cases)
-    results = []
     scored  = []
 
-    for tc in cases:
+    print()
+    print("=" * LINE_WIDTH)
+    print("  Questions & Answers")
+    print("=" * LINE_WIDTH)
+
+    for i, tc in enumerate(cases, 1):
+        # Live progress indicator — overwrites the same line
+        label = f"  [{i}/{total}] {tc['id']} — {tc['question'][:55]}..."
+        sys.stdout.write(f"\r{label:<{LINE_WIDTH}}")
+        sys.stdout.flush()
+
         payload = {
             "year":     tc["year"],
             "make":     tc["make"],
@@ -162,25 +171,12 @@ def main():
         }
 
         status, resp = post_json(f"{BASE_URL}/api/ask", payload)
-        results.append({"tc": tc, "resp": resp})
 
-        if status == 0 or ("error" in resp and status != 200):
-            scored.append({"tc": tc, "resp": resp, "error": True})
-            continue
+        # Clear the progress line before printing the result
+        sys.stdout.write(f"\r{' ' * LINE_WIDTH}\r")
+        sys.stdout.flush()
 
-        s = score_case(tc, resp)
-        if s["all_ok"]:
-            correct += 1
-        scored.append({"tc": tc, "resp": resp, "error": False, "scores": s})
-
-    # --- Questions & Answers first ---
-    print()
-    print("=" * LINE_WIDTH)
-    print("  Questions & Answers")
-    print("=" * LINE_WIDTH)
-    for entry in results:
-        tc   = entry["tc"]
-        resp = entry["resp"]
+        # Print Q&A immediately
         print()
         print(f"[{tc['id']}] {tc['question']}")
         print(f"  Bike    : {tc['year']} {tc['make']} {tc['model']} ({tc['mileage']} mi)")
@@ -198,6 +194,16 @@ def main():
                 for s in sources
             )
             print(f"  Sources : {src_str}")
+
+        if status == 0 or ("error" in resp and status != 200):
+            scored.append({"tc": tc, "resp": resp, "error": True})
+            continue
+
+        s = score_case(tc, resp)
+        if s["all_ok"]:
+            correct += 1
+        scored.append({"tc": tc, "resp": resp, "error": False, "scores": s})
+
     print()
     print("=" * LINE_WIDTH)
 
