@@ -30,7 +30,9 @@ import urllib.error
 # ---------------------------------------------------------------------------
 BASE_URL    = "http://localhost:5000"
 CASES_FILE  = "eval/test_cases.json"
-COL_WIDTH   = 10
+COL_WIDTH     = 10
+PURPOSE_WIDTH = 70
+LINE_WIDTH    = 78 + 2 + PURPOSE_WIDTH
 
 
 # ---------------------------------------------------------------------------
@@ -145,9 +147,9 @@ def main():
         sys.exit(1)
 
     print()
-    print("=" * 78)
+    print("=" * LINE_WIDTH)
     print("  MotoMate Evaluation")
-    print("=" * 78)
+    print("=" * LINE_WIDTH)
 
     # Header row
     header = (
@@ -157,10 +159,10 @@ def main():
         f"{'SAFETY':<{COL_WIDTH}}"
         f"{'GROUNDING':<{COL_WIDTH}}"
         f"{'RESULT':<8}"
-        f"  NOTE"
+        f"  {'NOTE / PURPOSE'}"
     )
     print(header)
-    print("-" * 78)
+    print("-" * LINE_WIDTH)
 
     correct = 0
     total   = len(cases)
@@ -181,6 +183,7 @@ def main():
 
         if status == 0 or "error" in resp and status != 200:
             note = resp.get("error", "request failed")[:40]
+            purpose = tc.get("purpose", "")[:PURPOSE_WIDTH]
             row = (
                 f"{tc_id:<8}"
                 f"{'ERR':<{COL_WIDTH}}"
@@ -188,7 +191,7 @@ def main():
                 f"{'ERR':<{COL_WIDTH}}"
                 f"{'ERR':<{COL_WIDTH}}"
                 f"{'FAIL':<8}"
-                f"  {note}"
+                f"  {purpose}"
             )
             print(row)
             results.append({"tc": tc, "resp": resp})
@@ -198,7 +201,7 @@ def main():
         if scores["all_ok"]:
             correct += 1
 
-        # Build note for failures
+        # Build note for failures, then append purpose
         note_parts = []
         if not scores["category_ok"]:
             note_parts.append(
@@ -208,7 +211,12 @@ def main():
         if not scores["grounding_ok"] and tc["expect_answer"]:
             kw = tc.get("expected_source_keyword", "")
             note_parts.append(f"keyword '{kw}' not found" if kw else "no sources")
-        note = "; ".join(note_parts)[:50]
+        failure_note = "; ".join(note_parts)
+
+        purpose = tc.get("purpose", "")
+        # Show failure detail when there is one, otherwise just purpose
+        display = (f"FAIL: {failure_note} | {purpose}" if failure_note else purpose)
+        display = display[:PURPOSE_WIDTH + 10]
 
         row = (
             f"{tc_id:<8}"
@@ -217,27 +225,28 @@ def main():
             f"{tick(scores['safety_ok']):<{COL_WIDTH}}"
             f"{tick(scores['grounding_ok']):<{COL_WIDTH}}"
             f"{'YES' if scores['all_ok'] else 'NO':<8}"
-            f"  {note}"
+            f"  {display}"
         )
         print(row)
         results.append({"tc": tc, "resp": resp})
 
-    print("-" * 78)
+    print("-" * LINE_WIDTH)
     score = correct / total if total else 0.0
     print(f"\n  motomate_score = {correct}/{total} = {score:.3f}\n")
-    print("=" * 78)
+    print("=" * LINE_WIDTH)
 
     # --- Per-case question + answer summary ---
     print()
-    print("=" * 78)
+    print("=" * LINE_WIDTH)
     print("  Questions & Answers")
-    print("=" * 78)
+    print("=" * LINE_WIDTH)
     for entry in results:
         tc   = entry["tc"]
         resp = entry["resp"]
         print()
         print(f"[{tc['id']}] {tc['question']}")
         print(f"  Bike    : {tc['year']} {tc['make']} {tc['model']} ({tc['mileage']} mi)")
+        print(f"  Purpose : {tc.get('purpose', '')}")
         print(f"  Category: {resp.get('category', 'n/a')}")
         answer = resp.get("answer", "")
         # Wrap answer text at 72 chars for readability
@@ -253,7 +262,7 @@ def main():
             )
             print(f"  Sources : {src_str}")
     print()
-    print("=" * 78)
+    print("=" * LINE_WIDTH)
     print()
 
 

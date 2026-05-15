@@ -9,7 +9,8 @@
     "expected_category": "maintenance",
     "expect_answer": true,
     "expect_safety_warning": true,
-    "expected_source_keyword": "oil"
+    "expected_source_keyword": "oil",
+    "purpose": "Core maintenance question — oil change interval"
   },
   {
     "id": "tc02",
@@ -21,7 +22,8 @@
     "expected_category": "maintenance",
     "expect_answer": true,
     "expect_safety_warning": true,
-    "expected_source_keyword": "chain"
+    "expected_source_keyword": "chain",
+    "purpose": "Core maintenance question — chain lubrication"
   },
   {
     "id": "tc03",
@@ -33,7 +35,8 @@
     "expected_category": "maintenance",
     "expect_answer": true,
     "expect_safety_warning": true,
-    "expected_source_keyword": "brake"
+    "expected_source_keyword": "brake",
+    "purpose": "Core maintenance question — brake fluid replacement"
   },
   {
     "id": "tc04",
@@ -45,7 +48,8 @@
     "expected_category": "safety_riding",
     "expect_answer": true,
     "expect_safety_warning": true,
-    "expected_source_keyword": "emergency"
+    "expected_source_keyword": "emergency",
+    "purpose": "Safety question — emergency braking technique"
   },
   {
     "id": "tc05",
@@ -57,7 +61,8 @@
     "expected_category": "safety_riding",
     "expect_answer": true,
     "expect_safety_warning": true,
-    "expected_source_keyword": "cornering"
+    "expected_source_keyword": "cornering",
+    "purpose": "Safety question — cornering technique"
   },
   {
     "id": "tc06",
@@ -69,7 +74,8 @@
     "expected_category": "gear",
     "expect_answer": true,
     "expect_safety_warning": true,
-    "expected_source_keyword": "helmet"
+    "expected_source_keyword": "helmet",
+    "purpose": "Gear question — helmet type and protection"
   },
   {
     "id": "tc07",
@@ -81,7 +87,8 @@
     "expected_category": "gear",
     "expect_answer": true,
     "expect_safety_warning": true,
-    "expected_source_keyword": "glove"
+    "expected_source_keyword": "glove",
+    "purpose": "Gear question — glove selection criteria"
   },
   {
     "id": "tc08",
@@ -93,7 +100,8 @@
     "expected_category": "general_info",
     "expect_answer": true,
     "expect_safety_warning": true,
-    "expected_source_keyword": "abs"
+    "expected_source_keyword": "abs",
+    "purpose": "General info question — ABS explanation"
   },
   {
     "id": "tc09",
@@ -105,7 +113,8 @@
     "expected_category": "general_info",
     "expect_answer": true,
     "expect_safety_warning": false,
-    "expected_source_keyword": "twin"
+    "expected_source_keyword": "twin",
+    "purpose": "General info question — engine type comparison (no warning expected)"
   },
   {
     "id": "tc10",
@@ -116,7 +125,8 @@
     "question": "How do I change the oil on my car?",
     "expected_category": "unsupported",
     "expect_answer": false,
-    "expect_safety_warning": false
+    "expect_safety_warning": false,
+    "purpose": "Off-topic refusal — car question, not motorcycle-related"
   },
   {
     "id": "tc11",
@@ -127,7 +137,8 @@
     "question": "What is the best restaurant near the motorcycle dealership?",
     "expected_category": "unsupported",
     "expect_answer": false,
-    "expect_safety_warning": false
+    "expect_safety_warning": false,
+    "purpose": "Off-topic refusal — completely unrelated question"
   },
   {
     "id": "tc12",
@@ -138,7 +149,8 @@
     "question": "What is the exact valve clearance specification for my Honda CB500F?",
     "expected_category": "maintenance",
     "expect_answer": false,
-    "expect_safety_warning": false
+    "expect_safety_warning": false,
+    "purpose": "Corpus-missing refusal — motorcycle question not covered by corpus"
   },
   {
     "id": "tc13",
@@ -150,6 +162,7 @@
     "expected_category": "safety_riding",
     "expect_answer": true,
     "expect_safety_warning": true,
-    "expected_source_keyword": "slippery"
+    "expected_source_keyword": "slippery",
+    "purpose": "Vague safety question — rain riding, covered by road hazards corpus"
   }
 ]
