@@ -4,11 +4,11 @@
 
 ## 1. What & Why
 
-     MotoMate is an AI-powered motorcycle maintenance and safety assistant for              beginner-to-intermediate riders. The app lets users enter their motorcycle’s year, make, model, mileage, and a question, then returns maintenance or safety guidance based on information retrieved from a local motorcycle corpus. It is designed for new to intermediate riders who may not yet know how to interpret maintenance symptoms, riding safety concerns, or gear recommendations, but still want clear and cautious guidance before deciding whether to do something themselves or contact a mechanic.
+MotoMate is an AI-powered motorcycle maintenance and safety assistant for beginner-to-intermediate riders. The app lets users enter their motorcycle’s year, make, model, mileage, and a question, then returns maintenance or safety guidance based on information retrieved from a local motorcycle corpus. It is designed for new to intermediate riders who may not yet know how to interpret maintenance symptoms, riding safety concerns, or gear recommendations, but still want clear and cautious guidance before deciding whether to do something themselves or contact a mechanic.
 
-     I built MotoMate around a local retrieval-based design because motorcycle advice can become risky if the model guesses. Instead of letting the LLM answer from general knowledge alone, the backend first classifies the request, retrieves relevant passages from local corpus files using TF-IDF search, and then asks the OpenAI model to answer only from those retrieved passages. If the app cannot find enough supporting information, it refuses to answer instead of inventing unsupported details. I also used rule-based safety warnings for topics like brakes, tires, chains, riding technique, and gear because those areas can directly affect rider safety.
+I built MotoMate around a local retrieval-based design because motorcycle advice can become risky if the model guesses. Instead of letting the LLM answer from general knowledge alone, the backend first classifies the request, retrieves relevant passages from local corpus files using TF-IDF search, and then asks the OpenAI model to answer only from those retrieved passages. If the app cannot find enough supporting information, it refuses to answer instead of inventing unsupported details. I also used rule-based safety warnings for topics like brakes, tires, chains, riding technique, and gear because those areas can directly affect rider safety.
 
-     The hardest part of getting the AI behavior right is balancing usefulness with caution. A rider may ask a question that sounds simple, but exact motorcycle-specific details like torque specs, tire pressures, or fluid capacities should not be guessed. The app must decide when the retrieved evidence is strong enough to answer and when it should refuse or warn the user. This makes grounding, refusal behavior, and safety handling the most important parts of the project.
+The hardest part of getting the AI behavior right is balancing usefulness with caution. A rider may ask a question that sounds simple, but exact motorcycle-specific details like torque specs, tire pressures, or fluid capacities should not be guessed. The app must decide when the retrieved evidence is strong enough to answer and when it should refuse or warn the user. This makes grounding, refusal behavior, and safety handling the most important parts of the project.
 
 ---
 
@@ -40,11 +40,23 @@
 
 ### v3 — Fixed Safety warning logic 
 
+**Change:** Updated app.py so that when the LLM classifies the user message as off-topic, it will not show any safety message if safety terms are present in the message.
+
+**Motivating example:** 
+
+**Delta:** 0.769 -> 0.923 = 0.154 (up from v2)
+
+**Conclusion:** 
+
+---
+
+### v4 — 
+
 **Change:** 
 
 **Motivating example:** 
 
-**Delta:**  (up/down from v2)
+**Delta:**  (up from v3)
 
 **Conclusion:** 
 
