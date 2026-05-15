@@ -111,7 +111,13 @@ def api_ask():
         result = answer(question, bike_profile, top_chunks, max_score)
 
         # --- Step 4: Safety warning (rule-based, no OpenAI call) ---
-        safety_warning = check_safety(question, result["answer"], category)
+        # Only check for a safety warning when the LLM actually produced an
+        # answer. If it refused (has_answer is False), suppress the warning —
+        # the refusal message itself contains no actionable safety content.
+        if result["has_answer"]:
+            safety_warning = check_safety(question, result["answer"], category)
+        else:
+            safety_warning = None
 
         return jsonify({
             "category":       category,
