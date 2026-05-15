@@ -146,31 +146,13 @@ def main():
         print("Make sure the app is running:  python app.py")
         sys.exit(1)
 
-    print()
-    print("=" * LINE_WIDTH)
-    print("  MotoMate Evaluation")
-    print("=" * LINE_WIDTH)
-
-    # Header row
-    header = (
-        f"{'ID':<8}"
-        f"{'CATEGORY':<{COL_WIDTH}}"
-        f"{'ANSWER':<{COL_WIDTH}}"
-        f"{'SAFETY':<{COL_WIDTH}}"
-        f"{'GROUNDING':<{COL_WIDTH}}"
-        f"{'RESULT':<8}"
-        f"  {'NOTE / PURPOSE'}"
-    )
-    print(header)
-    print("-" * LINE_WIDTH)
-
+    # --- Collect all results first ---
     correct = 0
     total   = len(cases)
-    results = []  # collect (tc, resp) for the Q&A summary at the end
+    results = []
+    scored  = []
 
     for tc in cases:
-        tc_id = tc["id"]
-
         payload = {
             "year":     tc["year"],
             "make":     tc["make"],
@@ -180,62 +162,18 @@ def main():
         }
 
         status, resp = post_json(f"{BASE_URL}/api/ask", payload)
-
-        if status == 0 or "error" in resp and status != 200:
-            note = resp.get("error", "request failed")[:40]
-            purpose = tc.get("purpose", "")[:PURPOSE_WIDTH]
-            row = (
-                f"{tc_id:<8}"
-                f"{'ERR':<{COL_WIDTH}}"
-                f"{'ERR':<{COL_WIDTH}}"
-                f"{'ERR':<{COL_WIDTH}}"
-                f"{'ERR':<{COL_WIDTH}}"
-                f"{'FAIL':<8}"
-                f"  {purpose}"
-            )
-            print(row)
-            results.append({"tc": tc, "resp": resp})
-            continue
-
-        scores = score_case(tc, resp)
-        if scores["all_ok"]:
-            correct += 1
-
-        # Build note for failures, then append purpose
-        note_parts = []
-        if not scores["category_ok"]:
-            note_parts.append(
-                f"category got={resp.get('category','?')} "
-                f"want={tc['expected_category']}"
-            )
-        if not scores["grounding_ok"] and tc["expect_answer"]:
-            kw = tc.get("expected_source_keyword", "")
-            note_parts.append(f"keyword '{kw}' not found" if kw else "no sources")
-        failure_note = "; ".join(note_parts)
-
-        purpose = tc.get("purpose", "")
-        # Show failure detail when there is one, otherwise just purpose
-        display = (f"FAIL: {failure_note} | {purpose}" if failure_note else purpose)
-        display = display[:PURPOSE_WIDTH + 10]
-
-        row = (
-            f"{tc_id:<8}"
-            f"{tick(scores['category_ok']):<{COL_WIDTH}}"
-            f"{tick(scores['answer_ok']):<{COL_WIDTH}}"
-            f"{tick(scores['safety_ok']):<{COL_WIDTH}}"
-            f"{tick(scores['grounding_ok']):<{COL_WIDTH}}"
-            f"{'YES' if scores['all_ok'] else 'NO':<8}"
-            f"  {display}"
-        )
-        print(row)
         results.append({"tc": tc, "resp": resp})
 
-    print("-" * LINE_WIDTH)
-    score = correct / total if total else 0.0
-    print(f"\n  motomate_score = {correct}/{total} = {score:.3f}\n")
-    print("=" * LINE_WIDTH)
+        if status == 0 or ("error" in resp and status != 200):
+            scored.append({"tc": tc, "resp": resp, "error": True})
+            continue
 
-    # --- Per-case question + answer summary ---
+        s = score_case(tc, resp)
+        if s["all_ok"]:
+            correct += 1
+        scored.append({"tc": tc, "resp": resp, "error": False, "scores": s})
+
+    # --- Questions & Answers first ---
     print()
     print("=" * LINE_WIDTH)
     print("  Questions & Answers")
@@ -249,7 +187,6 @@ def main():
         print(f"  Purpose : {tc.get('purpose', '')}")
         print(f"  Category: {resp.get('category', 'n/a')}")
         answer = resp.get("answer", "")
-        # Wrap answer text at 72 chars for readability
         for line in textwrap.wrap(answer, width=72):
             print(f"  {line}")
         if resp.get("safety_warning"):
@@ -262,6 +199,74 @@ def main():
             )
             print(f"  Sources : {src_str}")
     print()
+    print("=" * LINE_WIDTH)
+
+    # --- Score table after Q&A ---
+    print()
+    print("=" * LINE_WIDTH)
+    print("  MotoMate Evaluation")
+    print("=" * LINE_WIDTH)
+
+    header = (
+        f"{'ID':<8}"
+        f"{'CATEGORY':<{COL_WIDTH}}"
+        f"{'ANSWER':<{COL_WIDTH}}"
+        f"{'SAFETY':<{COL_WIDTH}}"
+        f"{'GROUNDING':<{COL_WIDTH}}"
+        f"{'RESULT':<8}"
+        f"  {'NOTE / PURPOSE'}"
+    )
+    print(header)
+    print("-" * LINE_WIDTH)
+
+    for entry in scored:
+        tc    = entry["tc"]
+        tc_id = tc["id"]
+
+        if entry["error"]:
+            purpose = tc.get("purpose", "")[:PURPOSE_WIDTH]
+            print(
+                f"{tc_id:<8}"
+                f"{'ERR':<{COL_WIDTH}}"
+                f"{'ERR':<{COL_WIDTH}}"
+                f"{'ERR':<{COL_WIDTH}}"
+                f"{'ERR':<{COL_WIDTH}}"
+                f"{'FAIL':<8}"
+                f"  {purpose}"
+            )
+            continue
+
+        s    = entry["scores"]
+        resp = entry["resp"]
+
+        note_parts = []
+        if not s["category_ok"]:
+            note_parts.append(
+                f"category got={resp.get('category','?')} "
+                f"want={tc['expected_category']}"
+            )
+        if not s["grounding_ok"] and tc["expect_answer"]:
+            kw = tc.get("expected_source_keyword", "")
+            note_parts.append(f"keyword '{kw}' not found" if kw else "no sources")
+        failure_note = "; ".join(note_parts)
+
+        purpose = tc.get("purpose", "")
+        display = (f"FAIL: {failure_note} | {purpose}" if failure_note else purpose)
+        display = display[:PURPOSE_WIDTH + 10]
+
+        print(
+            f"{tc_id:<8}"
+            f"{tick(s['category_ok']):<{COL_WIDTH}}"
+            f"{tick(s['answer_ok']):<{COL_WIDTH}}"
+            f"{tick(s['safety_ok']):<{COL_WIDTH}}"
+            f"{tick(s['grounding_ok']):<{COL_WIDTH}}"
+            f"{'YES' if s['all_ok'] else 'NO':<8}"
+            f"  {display}"
+        )
+
+    print("-" * LINE_WIDTH)
+    score = correct / total if total else 0.0
+    print(f"\n  motomate_score = {correct}/{total} = {score:.3f}\n")
     print("=" * LINE_WIDTH)
     print()
 
