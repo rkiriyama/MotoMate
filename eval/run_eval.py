@@ -4,7 +4,7 @@ run_eval.py — MotoMate evaluation runner
 Usage (with the Flask app already running on port 5000):
     python eval/run_eval.py
 
-Scores four dimensions per test case:
+Scores four dimensions per test case (each worth 0.25 points):
   category_ok   — returned category matches expected_category
   answer_ok     — has_answer matches expect_answer
   safety_ok     — safety_warning present iff expect_safety_warning is true
@@ -14,9 +14,9 @@ Scores four dimensions per test case:
                    if expect_answer is false: passes automatically when
                    answer_ok passes
 
-A case is CORRECT only when all four dimensions pass.
-
-Prints a per-case table and the final motomate_score.
+Two scores are reported:
+  motomate_score   — binary: cases where ALL four dimensions pass / total
+  partial_score    — fractional: total points earned (0.25 per dimension) / total
 """
 
 import json
@@ -117,6 +117,13 @@ def score_case(tc, resp):
         and result["safety_ok"]
         and result["grounding_ok"]
     )
+    # Partial credit: each dimension is worth 0.25
+    result["pts"] = sum([
+        0.25 if result["category_ok"]  else 0,
+        0.25 if result["answer_ok"]    else 0,
+        0.25 if result["safety_ok"]    else 0,
+        0.25 if result["grounding_ok"] else 0,
+    ])
     return result
 
 
@@ -147,9 +154,10 @@ def main():
         sys.exit(1)
 
     # --- Run tests, printing each Q&A as it completes ---
-    correct = 0
-    total   = len(cases)
-    scored  = []
+    correct      = 0
+    total        = len(cases)
+    total_pts    = 0.0
+    scored       = []
 
     print()
     print("=" * LINE_WIDTH)
@@ -202,6 +210,7 @@ def main():
         s = score_case(tc, resp)
         if s["all_ok"]:
             correct += 1
+        total_pts += s["pts"]
         scored.append({"tc": tc, "resp": resp, "error": False, "scores": s})
 
     print()
@@ -219,6 +228,7 @@ def main():
         f"{'ANSWER':<{COL_WIDTH}}"
         f"{'SAFETY':<{COL_WIDTH}}"
         f"{'GROUNDING':<{COL_WIDTH}}"
+        f"{'PTS':<6}"
         f"{'RESULT':<8}"
         f"  {'NOTE / PURPOSE'}"
     )
@@ -237,6 +247,7 @@ def main():
                 f"{'ERR':<{COL_WIDTH}}"
                 f"{'ERR':<{COL_WIDTH}}"
                 f"{'ERR':<{COL_WIDTH}}"
+                f"{'0.00':<6}"
                 f"{'FAIL':<8}"
                 f"  {purpose}"
             )
@@ -266,13 +277,16 @@ def main():
             f"{tick(s['answer_ok']):<{COL_WIDTH}}"
             f"{tick(s['safety_ok']):<{COL_WIDTH}}"
             f"{tick(s['grounding_ok']):<{COL_WIDTH}}"
+            f"{s['pts']:.2f}  "
             f"{'YES' if s['all_ok'] else 'NO':<8}"
             f"  {display}"
         )
 
     print("-" * LINE_WIDTH)
-    score = correct / total if total else 0.0
-    print(f"\n  motomate_score = {correct}/{total} = {score:.3f}\n")
+    score         = correct   / total if total else 0.0
+    partial_score = total_pts / total if total else 0.0
+    print(f"\n  motomate_score   (binary)  = {correct}/{total} = {score:.3f}")
+    print(f"  partial_score    (0.25/dim) = {total_pts:.2f}/{total:.0f} = {partial_score:.3f}\n")
     print("=" * LINE_WIDTH)
     print()
 
