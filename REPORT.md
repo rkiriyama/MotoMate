@@ -4,55 +4,49 @@
 
 ## 1. What & Why
 
-<!-- 200–250 words -->
-<!-- Explain:
-     - What MotoMate does (what problem it solves, who it is for)
-     - Why you built it this way (key design choices and their motivation)
-     - What is hard about getting the AI behavior right for this use case -->
+     MotoMate is an AI-powered motorcycle maintenance and safety assistant for              beginner-to-intermediate riders. The app lets users enter their motorcycle’s year, make, model, mileage, and a question, then returns maintenance or safety guidance based on information retrieved from a local motorcycle corpus. It is designed for new to intermediate riders who may not yet know how to interpret maintenance symptoms, riding safety concerns, or gear recommendations, but still want clear and cautious guidance before deciding whether to do something themselves or contact a mechanic.
 
-MotoMate is ...
+     I built MotoMate around a local retrieval-based design because motorcycle advice can become risky if the model guesses. Instead of letting the LLM answer from general knowledge alone, the backend first classifies the request, retrieves relevant passages from local corpus files using TF-IDF search, and then asks the OpenAI model to answer only from those retrieved passages. If the app cannot find enough supporting information, it refuses to answer instead of inventing unsupported details. I also used rule-based safety warnings for topics like brakes, tires, chains, riding technique, and gear because those areas can directly affect rider safety.
+
+     The hardest part of getting the AI behavior right is balancing usefulness with caution. A rider may ask a question that sounds simple, but exact motorcycle-specific details like torque specs, tire pressures, or fluid capacities should not be guessed. The app must decide when the retrieved evidence is strong enough to answer and when it should refuse or warn the user. This makes grounding, refusal behavior, and safety handling the most important parts of the project.
 
 ---
 
 ## 2. Iterations
 
-<!-- At least 3 labeled versions evaluated against the same eval/test_cases.json set.
-     Each version must include: Change, Motivating example, Delta, Conclusion.
-     Show the motomate_score before and after each change. -->
+### v1 — Baseline build
 
-### v1 — Initial build
+**Change:** This is the first iteration where MotoMate functioned. It has a simple system prompt for the classifier and answerer. The model the baseline uses is gpt-4o-mini. 
 
-**Change:** ...
+**Motivating example:** In tc09, the check_safety function gave a false positive for the safety warning. The category was general info about engine types. The website was supposed to give no warning, since this doesn't affect rider safety.
 
-**Motivating example:** ...
+**Delta:** N/A -> 0.692
 
-**Delta:** motomate_score = ? / 13
-
-**Conclusion:** ...
+**Conclusion:** The Baseline showed that check_safety keywords needed to be improved to correctly flag a safety issue. Some keywords are too broad and need to be specified.
 
 ---
 
-### v2 — ...
+### v2 — Improved safety check
 
-**Change:** ...
+**Change:** The safety classifiers have been expanded and general terms have been specified to reduce collision with general motorcycle facts. For example, instead of just "valve", I changed it to "valve seal", so that general questions about the engine won't trigger a safety warning.
 
-**Motivating example:** ...
+**Motivating example:** The safety checks for off-topic questions involving the safety keywords get triggered. Both tc10 and tc11 incorrectly flag a safety warning when nothing is supposed to be given due to incomplete information from the corpus.
 
-**Delta:** motomate_score = ? / 13 (up/down from v1)
+**Delta:** 0.692 -> 0.769 = 0.077 (up from v1)
 
-**Conclusion:** ...
+**Conclusion:** Expanding the safety classifiers to be more specific helped increase accuracy by preventing accidental flagging of the safety warning. However, the system still flags safety keywords from off-topic messages. I will fix this in the next iteration.
 
 ---
 
-### v3 — ...
+### v3 — Fixed Safety warning logic 
 
-**Change:** ...
+**Change:** 
 
-**Motivating example:** ...
+**Motivating example:** 
 
-**Delta:** motomate_score = ? / 13 (up/down from v2)
+**Delta:**  (up/down from v2)
 
-**Conclusion:** ...
+**Conclusion:** 
 
 ---
 
