@@ -1,0 +1,132 @@
+[
+  {
+    "id": "tc01",
+    "year": "2020",
+    "make": "Honda",
+    "model": "CB500F",
+    "mileage": "5000",
+    "question": "How often should I change the engine oil?",
+    "expected_category": "maintenance",
+    "expect_answer": true,
+    "expect_safety_warning": true,
+    "expected_source_keyword": "oil"
+  },
+  {
+    "id": "tc02",
+    "year": "2021",
+    "make": "Kawasaki",
+    "model": "Ninja 400",
+    "mileage": "3200",
+    "question": "How often should I lubricate my drive chain?",
+    "expected_category": "maintenance",
+    "expect_answer": true,
+    "expect_safety_warning": true,
+    "expected_source_keyword": "chain"
+  },
+  {
+    "id": "tc03",
+    "year": "2019",
+    "make": "Yamaha",
+    "model": "MT-07",
+    "mileage": "8000",
+    "question": "How often should I replace the brake fluid?",
+    "expected_category": "maintenance",
+    "expect_answer": true,
+    "expect_safety_warning": true,
+    "expected_source_keyword": "brake"
+  },
+  {
+    "id": "tc04",
+    "year": "2022",
+    "make": "Suzuki",
+    "model": "GSX-8S",
+    "mileage": "1500",
+    "question": "What is the correct technique for emergency braking?",
+    "expected_category": "safety_riding",
+    "expect_answer": true,
+    "expect_safety_warning": true,
+    "expected_source_keyword": "emergency"
+  },
+  {
+    "id": "tc05",
+    "year": "2020",
+    "make": "Honda",
+    "model": "CB500F",
+    "mileage": "6000",
+    "question": "What is the basic technique for cornering on a motorcycle?",
+    "expected_category": "safety_riding",
+    "expect_answer": true,
+    "expect_safety_warning": true,
+    "expected_source_keyword": "cornering"
+  },
+  {
+    "id": "tc06",
+    "year": "2023",
+    "make": "Royal Enfield",
+    "model": "Meteor 350",
+    "mileage": "2000",
+    "question": "What type of helmet gives the most protection?",
+    "expected_category": "gear",
+    "expect_answer": true,
+    "expect_safety_warning": true,
+    "expected_source_keyword": "helmet"
+  },
+  {
+    "id": "tc07",
+    "year": "2021",
+    "make": "Kawasaki",
+    "model": "Z400",
+    "mileage": "4500",
+    "question": "What should I look for when buying motorcycle gloves?",
+    "expected_category": "gear",
+    "expect_answer": true,
+    "expect_safety_warning": true,
+    "expected_source_keyword": "glove"
+  },
+  {
+    "id": "tc08",
+    "year": "2022",
+    "make": "Honda",
+    "model": "CB650R",
+    "mileage": "3000",
+    "question": "How does ABS work on a motorcycle?",
+    "expected_category": "general_info",
+    "expect_answer": true,
+    "expect_safety_warning": false,
+    "expected_source_keyword": "abs"
+  },
+  {
+    "id": "tc09",
+    "year": "2020",
+    "make": "Honda",
+    "model": "CB500F",
+    "mileage": "7000",
+    "question": "What is the difference between a parallel-twin and a V-twin engine?",
+    "expected_category": "general_info",
+    "expect_answer": true,
+    "expect_safety_warning": false,
+    "expected_source_keyword": "twin"
+  },
+  {
+    "id": "tc10",
+    "year": "2018",
+    "make": "Toyota",
+    "model": "Camry",
+    "mileage": "45000",
+    "question": "How do I change the oil on my car?",
+    "expected_category": "unsupported",
+    "expect_answer": false,
+    "expect_safety_warning": false
+  },
+  {
+    "id": "tc11",
+    "year": "2020",
+    "make": "Honda",
+    "model": "CB500F",
+    "mileage": "5000",
+    "question": "What is the best restaurant near the motorcycle dealership?",
+    "expected_category": "unsupported",
+    "expect_answer": false,
+    "expect_safety_warning": false
+  }
+]
