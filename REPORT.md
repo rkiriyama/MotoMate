@@ -40,25 +40,25 @@ The hardest part of getting the AI behavior right is balancing usefulness with c
 
 ### v3 — Fixed Safety warning logic 
 
-**Change:** Updated app.py so that when the LLM classifies the user message as off-topic, it will not show any safety message if safety terms are present in the message.
+**Change:** Updated app.py so that when the LLM classifies the user message as off-topic, it will not show any safety message if safety terms are present in the message. This makes it so that off-topic questions get answered with just a not-enough-information statement.
 
-**Motivating example:** 
+**Motivating example:** In tc13, the answer, safety, and grounding tests failed. This means that the model failed to answer the question based on the corpus. Specifically, the test asked a general question about rain riding, but the model stated it didn't have the information, even though the corpus has general riding information.
 
 **Delta:** 0.769 -> 0.923 = 0.154 (up from v2)
 
-**Conclusion:** 
+**Conclusion:** Fixing the logic for the safety warning improved the safety scores tests. However, the system prompt is still vague and can lead to the AI categorizing a general motorcycle question into a not-enough info answer.
 
 ---
 
-### v4 — 
+### v4 — Improving Answerer System Prompt
 
-**Change:** 
+**Change:**  I changed the answer-generation model while keeping the classifier prompt, retrieval threshold, safety rules, corpus, and eval set the same.
 
-**Motivating example:** 
+**Motivating example:** In tc13, MotoMate still struggled with refusing exact model specific specifications when the corpus did not contain the requested information. I wanted to test whether a stronger answer model would follow the grounding instructions more reliably.
 
-**Delta:**  (up from v3)
+**Delta:**  0.923 -> 0.923 (No Change)
 
-**Conclusion:** 
+**Conclusion:** The score did not improve because the remaining failures were not mainly caused by answer-generation quality. They were caused by retrieval/refusal logic before the answer model had enough useful evidence. This showed that improving the model alone was less useful than tuning retrieval and guardrails. I kept the previous model because it was cheaper and performed the same on my eval set. This is my last iteration since I am running out of time on the assignment and my score is pretty decent.
 
 ---
 
