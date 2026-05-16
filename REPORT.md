@@ -64,45 +64,33 @@ The hardest part of getting the AI behavior right is balancing usefulness with c
 
 ## 3. Code Walkthrough
 
-<!-- 200–300 words.
-     Trace one complete user action through the code using file:line references.
-     Explain one design decision and one alternative that was considered and rejected. -->
+### Code Walkthrough
 
-### Request trace
+One important user action is when a rider fills out the MotoMate form and clicks **“Ask MotoMate.”** In `static/app.js:129-165`, the click handler collects the year, make, model, mileage, and question fields, converts them into a JSON payload, and sends a `POST` request to `/api/ask`. The frontend also clears the old response, turns on the loading state, and waits for the backend response before calling `renderResponse(data)`.
 
-When a user submits a question, the following happens:
+On the backend, the request is handled by the `/api/ask` route in `app.py:89-139`. First, the route reads the JSON body and validates that all five required fields are present. It then builds a `bike_profile` dictionary and limits the question to 500 characters. After that, the route runs the main pipeline: `classify(question, bike_profile)`, `retrieve(question)`, `answer(question, bike_profile, top_chunks, max_score)`, and finally `check_safety(...)` only if an actual answer was produced.
 
-1. **`app.py:??`** — ...
-2. **`classifier.py:??`** — ...
-3. **`retriever.py:??`** — ...
-4. **`answerer.py:??`** — ...
-5. **`safety.py:??`** — ...
-6. **`app.py:??`** — ...
+The retrieval step is handled in `retriever.py:99-135`. The user’s question is converted into a TF-IDF vector, compared against the stored corpus chunks with cosine similarity, sorted by score, and filtered so only chunks above the threshold are returned. Then, in `answerer.py:81-124`, the answerer refuses immediately if the retrieval score is too low or no chunks were found. Otherwise, it builds a prompt containing the bike profile, question, and retrieved passages, then asks the model to answer only from that context.
 
-### Design decision
-
-...
-
-### Alternative considered and rejected
-
-...
+A key design decision was using retrieval-grounded answering instead of letting the model answer freely. I chose this because motorcycle advice can be safety-sensitive, especially for brakes, tires, oil, and model-specific specs. An alternative I rejected was sending the user’s question directly to the LLM, because that could produce confident but unsupported maintenance advice.
 
 ---
 
 ## 4. AI Disclosure & Safety
 
-<!-- 150–250 words. -->
-
 ### How Kiro was used
 
+I used Kiro as an AI development assistant to plan, scaffold, debug, and improve MotoMate. My goal was to build a motorcycle-focused AI assistant that answers maintenance and safety questions using a local corpus instead of relying only on general LLM knowledge. Kiro helped me break the project into phases, including the Flask backend, frontend form, classifier, retriever, answerer, safety checker, evaluation tests, README, and REPORT. It then generated code for all of the phases.
+
+One issue was that the response panel stayed hidden even when the backend returned a successful answer. The problem was that CSS had the panel set to `display: none`, but JavaScript was only clearing the display value instead of forcing it to show. I fixed this by telling Kiro to change the JavaScript to set the panel to `display: block` and removing the CSS rule that kept it hidden.
+
+Another issue was that the safety warning appeared even when MotoMate refused to answer a question. For example, a valve clearance question was correctly refused, but the word “valve” still triggered the safety warning. I fixed this by telling Kiro to only run the safety warning check when MotoMate actually gives an answer. If the app refuses to answer, no safety warning is added.
+
+Overall, Kiro helped speed up development, but I still reviewed the code, tested the app locally, identified incorrect behavior, and decided which fixes matched the project requirements. I also completed the REPORT file and asked for help understanding the code and overall structure with help from ChatGPT/Kiro.
 ...
 
-### AI-assistant failures and fixes
-
-1. **Failure:** ... **Fix:** ...
-2. **Failure:** ... **Fix:** ...
-3. **Failure:** ... **Fix:** ...
-
 ### App-specific safety risk
+
+One safety risk specific to MotoMate is hallucination harm, because incorrect motorcycle maintenance advice about brakes, tires, oil, chains, or model-specific specs could lead to mechanical damage or rider injury. To reduce this risk, I designed MotoMate to answer only from retrieved corpus passages and refuse when the retrieved information is missing or too weak. I accepted the limit that the app may refuse some valid questions rather than risk giving unsupported advice. I recall Professor saying "It is better to give false postives on safety matters than false negatives."
 
 ...
